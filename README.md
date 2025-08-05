@@ -1,6 +1,6 @@
 # 🧩 Clash 高性能配置模板
 
-个认使用的 Clash 配置模板，专为追求精简、高效、易维护的用户设计。  
+个人使用的 Clash 配置模板，专为追求精简、高效、易维护的用户设计。  
 适用于 Clash / Clash Meta / MetaCubeX / Nikki 等常见代理客户端。
 
 ---
