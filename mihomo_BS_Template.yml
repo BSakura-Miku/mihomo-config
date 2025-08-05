@@ -1,8 +1,10 @@
 # 必读！！！
 # 带🔴标记的配置项为一般代理软件强制覆写的项目，需要在代理软件配置相应项目
+# 注意混入配置中的设置会覆盖yaml设置
 # 注意规则在满足自己需求情况下，尽量做到精简，不要过度复杂，以免影响性能。
 # 跑裸核用户请自行去掉下方控制面板模块的注释。
 # 作者: BSakura
+# Ver.3.1 修改时间: 2025-08-06 04:55 修改speedtest相关测速规则
 # Ver.3.0 修改时间: 2025-08-05 06:03 修改GEO数据库下载地址、增加代理组icon、优化可读性、远程规则集保存路径
 # Ver.2.1 修改时间: 2025-08-03 06:04 优化规则匹配
 # Ver.2.0 修改时间: 2025-08-03 05:14 优化广告拦截
@@ -37,7 +39,7 @@ proxy-providers-general: &proxy-providers-general         # 代理提供者通�
 proxy-providers:
   机场名称:
     <<: *proxy-providers-general                          # 引用上文的yaml锚点
-    url: "订阅地址"
+    url: "订阅链接"
     override:                                             # 可选，覆写设置
       additional-prefix: "ik|"                            # 可选，给订阅添加前缀
     #path: ./providers/proxy/proxy-provider1.yaml         # 可选，指定下载路径
@@ -130,6 +132,8 @@ sniffer:                                                  # 嗅探，获取SNI�
     - "+.amazonaws.com"
     - "+.media.dssott.com"
     - "+.v2ex.com"
+    - "+.speedtest.net"
+    - "+.speedtest.com"
   skip-domain:                                            # 需要跳过嗅探的域名，主要解决部分站点sni字段非域名，导致嗅探结果异常的问题，如米家设备
     - "+.baidu.com"
     - "+.apple.com"
@@ -379,6 +383,9 @@ rules:
 
   - GEOIP,private,DIRECT,no-resolve
 
+  # ✅ 测速/测试
+  - RULE-SET,speedtest_domain,Speedtest
+  - RULE-SET,check_class,Speedtest
 
   # ✅ AI 相关服务（优先代理）
   - RULE-SET,chatgpt_domain,AI
@@ -420,9 +427,6 @@ rules:
   - RULE-SET,playstation_domain,Games
   - RULE-SET,nintendo_domain,Games
   - RULE-SET,games_domain,Games
-
-  # ✅ 测速/测试
-  - RULE-SET,speedtest_domain,Speedtest
 
   # ✅ 代理类/全局规则
   - RULE-SET,geolocation-!cn,Final
@@ -527,4 +531,6 @@ rule-providers:
   AD_ip: { <<: *iplist, path: ./ruleset/AD_ip.list, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/ad.list"}
   banProgramAD_domain: {<<: *class, path: ./ruleset/banProgramAD_domain.list, url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanProgramAD.list"}
   speedtest_domain: { <<: *domain, path: ./ruleset/speedtest_domain.mrs, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/ookla-speedtest.mrs"}
+  check_class: { <<: *class, path: ./ruleset/check_class.list, url: "https://raw.githubusercontent.com/BSakura-Miku/clash/refs/heads/BSakura-Miku-patch-1/list/Check.list"}
+  
 
