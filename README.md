@@ -37,17 +37,17 @@
 proxy-providers:
   机场名称:
     <<: *proxy-providers-general                          # 引用上文的yaml锚点
-    url: "订阅地址"
+    url: '订阅链接'
     override:                                             # 可选，覆写设置
-      additional-prefix: "ik|"                            # 可选，给订阅添加前缀
+      additional-prefix: 'ik|'                            # 可选，给订阅添加前缀
     #path: ./providers/proxy/proxy-provider1.yaml         # 可选，指定下载路径
-  # ikuuu2:
+  # provider2:
 
 # 代理组设置
 use-all-proxy-providers: &use-all-proxy-providers         # 代理组通用配置
   use:
     - 机场名称
-    # ikuuu2
+    # - provider2:
 ```
 
 2. 将 `mihomo_BS_Template.yml` 导入到你使用的 Clash 客户端（如 Clash Verge、Clash Meta for Android 等）。
