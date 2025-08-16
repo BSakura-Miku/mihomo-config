@@ -25,8 +25,8 @@ config proxy 'proxy'
 	list lan_inbound_interface 'lan'
 	list bypass_dscp '4'
 	option bypass_china_mainland_ip '1'
-	option proxy_tcp_dport '21 22 80 110 143 194 443 465 853 993 995 8080 8443'
-	option proxy_udp_dport '123 443 8443'
+	option proxy_tcp_dport '0-65535'
+	option proxy_udp_dport '0-65535'
 	option tun_timeout '30'
 	option tun_interval '1'
 
@@ -41,7 +41,7 @@ config mixin 'mixin'
 	option selection_cache '1'
 	option redir_port '7892'
 	option tproxy_port '7894'
-	option authentication '1'
+	option authentication '0'
 	option tun_device 'nikki'
 	option tun_dns_hijack '0'
 	list tun_dns_hijacks 'tcp://any:53'
@@ -63,7 +63,6 @@ config mixin 'mixin'
 	option unify_delay '1'
 	option tcp_concurrent '1'
 	option ui_name 'zashboard'
-	option geox_update_interval '24'
 	list fake_ip_filters '+.lan'
 	list fake_ip_filters '+.local'
 	list fake_ip_filters 'geosite:cn'
@@ -72,6 +71,7 @@ config mixin 'mixin'
 	option geoip_mmdb_url 'https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/country.mmdb'
 	option geoip_dat_url 'https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat'
 	option geoip_asn_url 'https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/GeoLite2-ASN.mmdb'
+	option geox_update_interval '24'
 
 config env 'env'
 	option disable_loopback_detector '0'
@@ -93,6 +93,14 @@ config router_access_control
 	list group 'nogroup'
 	list group 'ntp'
 	list group 'ubus'
+	list cgroup 'adguardhome'
+	list cgroup 'aria2'
+	list cgroup 'dnsmasq'
+	list cgroup 'netbird'
+	list cgroup 'qbittorrent'
+	list cgroup 'sysntpd'
+	list cgroup 'tailscale'
+	list cgroup 'zerotier'
 	option proxy '0'
 	option dns '0'
 
@@ -110,12 +118,6 @@ config authentication
 	option enabled '1'
 	option username 'nikki'
 	option password 'nikki'
-
-config hosts
-	option enabled '0'
-	option domain_name 'localhost'
-	list ip '127.0.0.1'
-	list ip '::1'
 
 config nameserver
 	option enabled '0'
@@ -138,8 +140,8 @@ config nameserver
 config nameserver
 	option enabled '1'
 	option type 'nameserver'
-	list nameserver '223.5.5.5'
-	list nameserver '223.6.6.6'
+	list nameserver '211.137.96.205'
+	list nameserver '183.221.253.100'
 
 config nameserver_policy
 	option enabled '1'
@@ -187,3 +189,6 @@ config routing 'routing'
 	option tun_route_table '81'
 	option cgroup_id '0x12061206'
 	option cgroup_name 'nikki'
+
+
+

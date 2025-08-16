@@ -4,7 +4,7 @@
 # 注意规则在满足自己需求情况下，尽量做到精简，不要过度复杂，以免影响性能。
 # 跑裸核用户请自行去掉下方控制面板模块的注释。
 # 作者: BSakura
-# Ver.3.5 修改时间: 2025-08-06 07:35 修改fake ip排除列表、增加部分注释、优化可读性、优化规则匹配、网易云解锁节点筛选
+# Ver.3.8 修改时间: 2025-08-16 修改部分rules 如OneDrive， 更新tun设置
 # 描述: Clash 配置文件，包含代理订阅与规则设置
 # 参考
 # https://github.com/refined-fish/clash_rule_fish
@@ -99,7 +99,7 @@ secret: 'hd54RIm0LiUpyu'                                  # 🔴API面板访问�
 external-ui: ./ui                                         # 🔴可以将静态网页资源 (比如 Clash-dashboard) 运行在 Clash API, 路径为 API 地址/ui，可以为绝对路径，或者 Clash 工作目录的相对路径
 external-ui-name: zashboard                               # API面板名，配合路径拼接成路径，例如/ui/metacubexd
 external-ui-url: 'https://ghfast.top/https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip' 
-                                                                      # API面板下载地址
+                                                          # API面板下载地址
 
 # 嗅探
 sniffer:                                                  # 嗅探，获取SNI中的域名，使mihomo能够反解未经自己DNS的IP请求的域名，来匹配域名规则
@@ -146,6 +146,7 @@ tun:
   auto-redirect: true                                     # 处理“跳转后的流量”，防止一些 302/307 重定向请求 绕过代理 或 失败
   auto-detect-interface: true                             # 自动选择流量的出接口（默认wan口）
   mtu: 9000                                               # MTU
+  device: nikki                                           # 指定 tun 网卡名称，MacOS 设备只能使用 utun 开头的网卡名
   # gso: true                                             # 通用分段卸载，仅支持Linux，提高性能                                                                  
   # gso-max-size: 65536                                   # 通用分段卸载包的最大长度                      
   # exclude-package:                                      # 排除的包名                
@@ -166,8 +167,6 @@ tun:
 # 综上所述，配置DNS没有那么重要，只要保证首次解析不要得到0.0.0.0这样的错误IP即可
 # 但是如果一定要要求访问国外域名DNS无泄漏，或者需要对国外进行分流，那么建议使用fakeip模式
 # 因为fakeip模式下，国外域名全部是fakeip并未进行本地解析，而且国外域名内网全部使用fakeip段，方便分流
-
-
 
 dns:
   enable: true                                            # 🔴启用dns模块，否则采用系统DNS
@@ -230,6 +229,7 @@ dns:
 ######### 锚点 start #########
 
 # 规则类型相关
+# type：可选http/file/inline  behavior：可选domain/ipcidr/classical format：可选yaml/text/mrs
 ip: &ip {type: http, interval: 86400, behavior: ipcidr, format: mrs}
 ip_list: &iplist {type: http, interval: 86400, behavior: ipcidr, format: text}
 domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}
@@ -307,6 +307,7 @@ proxy-groups:
   - {name: Block, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AdBlack.png, <<: *Select, proxies: [REJECT, DIRECT]}
   - {name: banProgram, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AdBlack.png, <<: *Select, proxies: [REJECT, DIRECT]}
   - {name: 国内, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/China_Map.png, <<: *Select, proxies: [DIRECT, Final]}
+
 # 业务分流组
   - {name: AI, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png, <<: *Select}
   - {name: Speedtest, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Speedtest.png, <<: *Select}
@@ -328,6 +329,7 @@ proxy-groups:
 # 服务分流组
   - {name: Apple, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Apple_1.png, <<: *Select}
   - {name: Google, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Google_Search.png, <<: *Select}
+  - {name: OneDrive, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/OneDrive.png, <<: *Select}  
   - {name: Microsoft, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Windows_11.png, <<: *Select}
 
 # 地区节点代理组
@@ -339,6 +341,7 @@ proxy-groups:
 
 # 全部节点
   - {name: AllServer, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Airport.png, type: select, proxies: [All-Auto], <<: *use-all-proxy-providers, filter: *All}
+
 # 延时优选代理组
   - {name: HK-Auto, <<: *UrlTest, filter: *HK, exclude-filter: '(免费|下载|直连)'}
   - {name: TW-Auto, <<: *UrlTest, filter: *TW, exclude-filter: '(免费|下载|直连)'}
@@ -376,17 +379,15 @@ rules:
 #### 对于必须直连者直接使用direct写死，其他尽可能使用代理组以方便面板控制以及切换测试
   # ✅ 自定义高优先
   - RULE-SET,wechat_domain,DIRECT
-  - RULE-SET,onedrive_domain,国内
   - RULE-SET,tmdb_domain,Final                            # 影视刮削访问缓慢，建议代理
   - RULE-SET,tailscale_domain,DIRECT                      # tailscale 必须直连，否则打洞失败
 
   # ✅ 私有网络/直连规则/广告/拦截
   - RULE-SET,private_domain,国内
+  - RULE-SET,private-ip,国内,no-resolve  
   - RULE-SET,anti-ad_domain,Block
-  - RULE-SET,AD_ip,Block
+  - RULE-SET,AD_ip,Block,no-resolve
   - RULE-SET,banProgramAD_domain,banProgram
-
-  - GEOIP,private,DIRECT,no-resolve
 
   # ✅ 测速/测试
   - RULE-SET,speedtest_domain,Speedtest
@@ -411,6 +412,7 @@ rules:
   - RULE-SET,reddit_domain,Final
   - RULE-SET,google_domain,Google
   - RULE-SET,apple_domain,Apple
+  - RULE-SET,onedrive_domain,OneDrive
   - RULE-SET,microsoft_domain,Microsoft
 
   # ✅ 流媒体服务
@@ -453,7 +455,6 @@ rules:
   - RULE-SET,cn_ip,国内
   - GEOIP,cn,DIRECT
   - MATCH,Final                                           # MATCH匹配所有请求，无需条件
-
 
 # 远程规则集 
 # 数据库匹配GEOSITE、GEOIP等 请求一次匹配一次数据库 不如特定规则集精简
@@ -508,7 +509,7 @@ rule-providers:
   neteasemusic-classical: {<<: *class, path: ./ruleset/neteasemusic.list, url: 'https://raw.githubusercontent.com/Coldvvater/Mononoke/master/Clash/Rules/NetEaseMusic.list'}
   bilibili_domain: {<<: *domain, path: ./ruleset/bilibili_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/bilibili.mrs'}
   bilibili_ip: {<<: *ip, path: ./ruleset/bilibili_ip.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo-lite/geoip/bilibili.mrs'}
-# 哔哩哔哩东南亚
+  # 哔哩哔哩东南亚
   biliintl_domain: {<<: *domain, path: ./ruleset/biliintl_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/biliintl.mrs'}
 
   # 🛒 商业 & 支付
@@ -539,3 +540,6 @@ rule-providers:
   speedtest_domain: { <<: *domain, path: ./ruleset/speedtest_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/ookla-speedtest.mrs'}
   check_class: { <<: *class, path: ./ruleset/check_class.list, url: 'https://raw.githubusercontent.com/BSakura-Miku/clash/refs/heads/BSakura-Miku-patch-1/list/Check.list'}
   
+hosts:
+  pve.lan:
+    - 10.10.2.9
