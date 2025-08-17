@@ -10,8 +10,8 @@
 -->
 # 🧩 Nikki 配置模板
 
-个人使用的 Nikki 配置模板，专为追求精简、高效、易维护的用户设计。  
-适用于 Clash / Clash Meta / MetaCubeX / Nikki 等常见代理客户端。
+个人使用的的 Nikki / Loon 配置模板，专为追求精简、高效、易维护的用户设计
+适用于 Clash / Clash Meta / MetaCubeX / Nikki / Loon 等代理客户端
 
 ---
 
@@ -22,7 +22,7 @@
 - ✨ 精简且常用的规则集，满足主流使用场景
 - 🔧 支持 GEO 数据库远程下载，更新更便捷
 - 📦 配置文件结构清晰，注释详尽，方便自定义扩展
-- 📁 rule-providers 基本使用 .mrs 格式，更快、内存占用更低
+- 📁 rule-providers 以 .mrs 格式为主，更快、内存占用更低
 - 🧱 使用anti-AD广告过滤列表 
 - 🎨 图标美化支持
 
