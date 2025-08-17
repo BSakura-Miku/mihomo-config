@@ -3,8 +3,8 @@
 # 注意混入配置中的设置会覆盖yaml设置
 # 注意规则在满足自己需求情况下，尽量做到精简，不要过度复杂，以免影响性能。
 # 跑裸核用户请自行去掉下方控制面板模块的注释。
-# 作者: BSakura
-# Ver.3.8 修改时间: 2025-08-16 修改部分rules 如OneDrive， 更新tun设置
+# 作者: https://github.com/BSakura-Miku
+# Ver.3.9 修改时间: 2025-08-17 新增韩国策略组 国内修改为China
 # 描述: Clash 配置文件，包含代理订阅与规则设置
 # 参考
 # https://github.com/refined-fish/clash_rule_fish
@@ -239,6 +239,7 @@ class: &class {type: http, interval: 86400, behavior: classical, format: text}
 HK: &HK '^(?=.*((?i)🇭🇰|香港|(\b(HK|Hong)\b)))(?!.*((?i)回国|校园|游戏|🎮|(\b(GAME)\b))).*$'
 TW: &TW '^(?=.*((?i)🇨🇳|台湾|(\b(TW|Tai|Taiwan)\b)))(?!.*((?i)回国|校园|游戏|🎮|(\b(GAME)\b))).*$'
 JP: &JP '^(?=.*((?i)🇯🇵|日本|川日|东京|大阪|泉日|埼玉|(\b(JP|Japan)\b)))(?!.*((?i)回国|校园|游戏|🎮|(\b(GAME)\b))).*$'
+KR: &KR '^(?=.*((?i)🇰🇷|韩国|韓|首尔|(\b(KR|KOR|Korea)(\d+)?\b)))(?!.*((?i)回国|校园|游戏|🎮|(\b(GAME)\b))).*$'
 SG: &SG '^(?=.*((?i)🇸🇬|新加坡|狮|(\b(SG|Singapore)\b)))(?!.*((?i)回国|校园|游戏|🎮|(\b(GAME)\b))).*$'
 US: &US '^(?=.*((?i)🇺🇸|美国|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|(\b(US|United States)\b)))(?!.*((?i)回国|校园|游戏|🎮|(\b(GAME)\b))).*$'
 All: &All '^(?=.*(.))(?!.*((?i)群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|(\b(USE|USED|TOTAL|Traffic|Expire|EMAIL|Panel|Channel|Author)\b|(\d{4}-\d{2}-\d{2}|\d+G)))).*$'
@@ -251,6 +252,7 @@ Select: &Select
     - HongKong
     - TaiWan
     - Japan
+    - Korea
     - Singapore
     - America
     - AllServer
@@ -300,13 +302,13 @@ LoadBalance: &LoadBalance                                 # 负载均衡策略
 proxy-groups: 
 
 # 漏网之鱼 推荐选择 Proxy
-  - {name: Final, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png, <<: *Select, proxies: [Proxy,DIRECT]}
+  - {name: Final, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png, <<: *Select, proxies: [Proxy, DIRECT]}
 
 # 节点切换
-  - {name: Proxy, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Rocket.png, <<: *Select, proxies: [HongKong,TaiWan,Japan,Singapore,America,AllServer,DIRECT]}
+  - {name: Proxy, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Rocket.png, <<: *Select, proxies: [HongKong, TaiWan, Japan, Korea, Singapore, America, AllServer, DIRECT]}
   - {name: Block, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AdBlack.png, <<: *Select, proxies: [REJECT, DIRECT]}
   - {name: banProgram, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AdBlack.png, <<: *Select, proxies: [REJECT, DIRECT]}
-  - {name: 国内, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/China_Map.png, <<: *Select, proxies: [DIRECT, Final]}
+  - {name: China, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/China_Map.png, <<: *Select, proxies: [DIRECT, Final]}
 
 # 业务分流组
   - {name: AI, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png, <<: *Select}
@@ -314,12 +316,12 @@ proxy-groups:
   - {name: GitHub, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/GitHub.png, <<: *Select}
   - {name: YouTube, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/YouTube.png, <<: *Select}
   - {name: NETFLIX, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Netflix.png, <<: *Select}
-  - {name: Disney+, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Disney.png, <<: *Select}
+  - {name: Disney, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Disney.png, <<: *Select}
   - {name: TikTok, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/TikTok.png, <<: *Select}
   - {name: Bahamut, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Bahamut.png, <<: *Select, proxies: [HongKong, TaiWan]}
-  - {name: bilibili, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/bilibili_3.png, <<: *Select, proxies: [DIRECT,HongKong,TaiWan]}
+  - {name: bilibili, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/bilibili_3.png, <<: *Select, proxies: [DIRECT, HongKong, TaiWan]}
   - {name: Spotify, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Spotify.png, <<: *Select}
-  - {name: NetEaseMusic, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Netease_Music.png, <<: *Select, include-all-providers: true, filter: '网易|音乐|解锁|Music|NetEase', proxies: [DIRECT]}
+  - {name: NetEaseMusic, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Netease_Music.png, <<: *Select, include-all-providers: true, filter: '(?i)网易|音乐|解锁|Music|NetEase', proxies: [DIRECT]}
   - {name: Streaming, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Streaming.png, <<: *Select}
   - {name: Telegram, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Telegram_X.png, <<: *Select}
   - {name: X, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/X.png, <<: *Select}
@@ -336,6 +338,7 @@ proxy-groups:
   - {name: HongKong, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Hong_Kong.png, type: select, proxies: [HK-Auto, HK-FallBack, HK-LoadBalance], include-all-providers: true, filter: *HK}
   - {name: TaiWan, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/China.png, type: select, proxies: [TW-Auto, TW-FallBack, TW-LoadBalance], include-all-providers: true, filter: *TW}
   - {name: Japan, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Japan.png, type: select, proxies: [JP-Auto, JP-FallBack, JP-LoadBalance], include-all-providers: true, filter: *JP}
+  - {name: Korea, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Korea.png, type: select, proxies: [KR-Auto, KR-FallBack, KR-LoadBalance], include-all-providers: true, filter: *KR}
   - {name: Singapore, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Singapore.png, type: select, proxies: [SG-Auto, SG-FallBack, SG-LoadBalance], include-all-providers: true, filter: *SG}
   - {name: America, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/United_States.png, type: select, proxies: [US-Auto, US-FallBack, US-LoadBalance], include-all-providers: true, filter: *US}
 
@@ -346,6 +349,7 @@ proxy-groups:
   - {name: HK-Auto, <<: *UrlTest, filter: *HK, exclude-filter: '(免费|下载|直连)'}
   - {name: TW-Auto, <<: *UrlTest, filter: *TW, exclude-filter: '(免费|下载|直连)'}
   - {name: JP-Auto, <<: *UrlTest, filter: *JP, exclude-filter: '(免费|下载|直连)'}
+  - {name: KR-Auto, <<: *UrlTest, filter: *KR, exclude-filter: '(免费|下载|直连)'}
   - {name: SG-Auto, <<: *UrlTest, filter: *SG, exclude-filter: '(免费|下载|直连)'}
   - {name: US-Auto, <<: *UrlTest, filter: *US, exclude-filter: '(免费|下载|直连)'}
 
@@ -353,6 +357,7 @@ proxy-groups:
   - {name: HK-FallBack, <<: *FallBack, filter: *HK, exclude-filter: '(免费|下载|直连)'}
   - {name: TW-FallBack, <<: *FallBack, filter: *TW, exclude-filter: '(免费|下载|直连)'}
   - {name: JP-FallBack, <<: *FallBack, filter: *JP, exclude-filter: '(免费|下载|直连)'}
+  - {name: KR-FallBack, <<: *FallBack, filter: *KR, exclude-filter: '(免费|下载|直连)'}
   - {name: SG-FallBack, <<: *FallBack, filter: *SG, exclude-filter: '(免费|下载|直连)'}
   - {name: US-FallBack, <<: *FallBack, filter: *US, exclude-filter: '(免费|下载|直连)'}
 
@@ -360,6 +365,7 @@ proxy-groups:
   - {name: HK-LoadBalance, <<: *LoadBalance, filter: *HK, exclude-filter: '(免费|下载|直连)'}
   - {name: TW-LoadBalance, <<: *LoadBalance, filter: *TW, exclude-filter: '(免费|下载|直连)'}
   - {name: JP-LoadBalance, <<: *LoadBalance, filter: *JP, exclude-filter: '(免费|下载|直连)'}
+  - {name: KR-LoadBalance, <<: *LoadBalance, filter: *KR, exclude-filter: '(免费|下载|直连)'}
   - {name: SG-LoadBalance, <<: *LoadBalance, filter: *SG, exclude-filter: '(免费|下载|直连)'}
   - {name: US-LoadBalance, <<: *LoadBalance, filter: *US, exclude-filter: '(免费|下载|直连)'}
 
@@ -383,8 +389,8 @@ rules:
   - RULE-SET,tailscale_domain,DIRECT                      # tailscale 必须直连，否则打洞失败
 
   # ✅ 私有网络/直连规则/广告/拦截
-  - RULE-SET,private_domain,国内
-  - RULE-SET,private-ip,国内,no-resolve  
+  - RULE-SET,private_domain,China
+  - RULE-SET,private-ip,China,no-resolve  
   - RULE-SET,anti-ad_domain,Block
   - RULE-SET,AD_ip,Block,no-resolve
   - RULE-SET,banProgramAD_domain,banProgram
@@ -403,7 +409,6 @@ rules:
   - RULE-SET,ai_domain,AI
 
   # ✅ 常用国际服务
-  - RULE-SET,youtube_domain,YouTube
   - RULE-SET,github_domain,GitHub
   - RULE-SET,telegram_domain,Telegram
   - RULE-SET,twitter_domain,X
@@ -416,9 +421,10 @@ rules:
   - RULE-SET,microsoft_domain,Microsoft
 
   # ✅ 流媒体服务
+  - RULE-SET,youtube_domain,YouTube
   - RULE-SET,tiktok_domain,TikTok
   - RULE-SET,netflix_domain,NETFLIX
-  - RULE-SET,disney_domain,NETFLIX
+  - RULE-SET,disney_domain,Disney
   - RULE-SET,hbo_domain,NETFLIX
   - RULE-SET,spotify_domain,Spotify
   - RULE-SET,bahamut_domain,Bahamut
@@ -451,8 +457,8 @@ rules:
   # ✅ 兜底规则
   - RULE-SET,gfw_domain,Final
   - RULE-SET,steam_domain,Steam                           # Steam，默认直连，换区时修改此处，，放于GFW之后因为创意工坊需始终代理
-  - RULE-SET,cn_domain,国内
-  - RULE-SET,cn_ip,国内
+  - RULE-SET,cn_domain,China
+  - RULE-SET,cn_ip,China
   - GEOIP,cn,DIRECT
   - MATCH,Final                                           # MATCH匹配所有请求，无需条件
 
