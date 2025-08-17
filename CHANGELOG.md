@@ -1,8 +1,26 @@
 # 📜 更新日志
+## Nikki Ver.1.1（2025-08-18）
+- 修改dns-reject-mode = Request 
 
-## Ver.3.9（2025-08-17）
+## Loon Ver.1.0（2025-08-18）
+📌 **说明**  
+本配置文件为 **Loon 专用配置**，结合个人实际使用需求与 Nikki 配置文件编写。  
+
+🆕 **更新内容**  
+- 初版发布  
+- 集成常用分流规则与代理组  
+- 优化部分策略逻辑，适配日常使用场景  
+
+🔗 **参考资源**  
+- [Tartarus2014/Loon-Script](https://github.com/Tartarus2014/Loon-Script)  
+- [luestr/ProxyResource](https://github.com/luestr/ProxyResource)  
+- [fmz200/wool_scripts](https://github.com/fmz200/wool_scripts)  
+- [limbopro/Adblock4limbo](https://github.com/limbopro/Adblock4limbo)  
+- [Loon0x00/LoonManual](https://github.com/Loon0x00/LoonManual)  
+- [luestr/ShuntRules](https://github.com/luestr/ShuntRules)  
+
+## Nikki Ver.3.9（2025-08-17）
 - 新增韩国策略组 国内修改为China 部分策略优化
-- 🆕添加Loon客户端配置文件
 ## Ver.3.8（2025-08-16）
 - 修改部分rules 如OneDrive， 更新tun设置
 
