@@ -1,4 +1,17 @@
+<!--
+ * @Author: bsakura
+ * @Date: 2025-08-05 12:15:04
+ * @LastEditors: BSakura
+ * @LastEditTime: 2025-08-18 04:00:15
+ * @FilePath: /undefined/Users/bsakura/Documents/github/mihomo-config/CHANGELOG.md
+ * @Description: 
+ * 
+ * Copyright (c) 2025 by bsakura, All Rights Reserved. 
+-->
 # 📜 更新日志
+## Nikki Ver.1.2（2025-08-18）
+- 添加 adrules.list 规则
+
 ## Nikki Ver.1.1（2025-08-18）
 - 修改dns-reject-mode = Request 
 
