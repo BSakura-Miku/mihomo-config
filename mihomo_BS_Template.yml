@@ -310,6 +310,7 @@ proxy-groups:
   - {name: Block, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AdBlack.png, <<: *Select, proxies: [REJECT, DIRECT]}
   - {name: banProgram, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AdBlack.png, <<: *Select, proxies: [REJECT, DIRECT]}
   - {name: China, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/China_Map.png, <<: *Select, proxies: [DIRECT, Final]}
+  - {name: Global, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Global.png, <<: *Select, proxies: [DIRECT, Final]}
 
 # 业务分流组
   - {name: AI, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png, <<: *Select}
@@ -446,9 +447,9 @@ rules:
   - RULE-SET,games_domain,Games
 
   # ✅ 代理类/全局规则
-  - RULE-SET,geolocation-!cn,Final
   - RULE-SET,proxy_domain,Final
-  - RULE-SET,global_domain,Final
+  - RULE-SET,global_domain,Global
+  - RULE-SET,geolocation-!cn,Final
 
   # ✅ IP组 通常 域名规则应当优先于 IP 规则/域名能提供更精确的匹配/fake-ip 模式依赖域名解析
   - RULE-SET,google_ip,Google,no-resolve
@@ -460,7 +461,7 @@ rules:
 
   # ✅ 兜底规则
   - RULE-SET,gfw_domain,Final
-  - RULE-SET,steam_domain,Steam                           # Steam, 默认直连, 换区时修改此处, , 放于GFW之后因为创意工坊需始终代理
+  - RULE-SET,steam_domain,Steam                           # Steam, 默认直连, 换区时修改此处, 放于GFW之后因为创意工坊需始终代理
   - RULE-SET,cn_domain,China
   - RULE-SET,cn_ip,China
   - GEOIP,cn,DIRECT
