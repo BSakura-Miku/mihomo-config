@@ -1,7 +1,7 @@
 # 🧩 Nikki 配置模板
 
-个人使用的 **Nikki / Loon 配置模板**，专为追求精简、高效、易维护的用户设计。  
-适用于 **Clash / Clash Meta / MetaCubeX / Nikki / Loon** 等代理客户端。  
+个人使用的 **Nikki / Loon 配置模板**，专为追求精简、高效、易维护的用户设计  
+适用于 **OpenClash / Clash Meta / MetaCubeX / Nikki / Clash mi** 等 `mihomo` 内核代理客户端 以及 **Loon**
 
 ---
 
@@ -39,6 +39,7 @@ use-all-proxy-providers: &use-all-proxy-providers         # 代理组通用配�
     - 机场名称
     # - provider2:
 ```
+> 非linux系统请注释或删除 `redir-port: 7892` `tproxy-port: 7894` 如 **clash mi** 客户端 
 
 
 3.  将 `mihomo_BS_Template.yml` 导入 Clash 客户端（如 **Clash Verge、Clash Meta for Android**）。
