@@ -1,2 +1,3 @@
 clean_jpg_deleted_*.log
 .DS_Store
+.gitignore

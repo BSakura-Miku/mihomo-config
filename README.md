@@ -61,7 +61,7 @@ use-all-proxy-providers: &use-all-proxy-providers         # 代理组通用配�
 
 
 ### Loon 配置
-![Loon](STIIITCH_2025_08_18_09_27_07.PNG)
+![Loon](./Resource/STIIITCH_2025_08_18_09_27_07.PNG)
 #### Loon Ver.1.0 (2025-08-18)
 
 📌 **说明**  
