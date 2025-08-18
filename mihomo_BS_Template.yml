@@ -448,18 +448,18 @@ rules:
 
   # ✅ 代理类/全局规则
   - RULE-SET,proxy_domain,Final
-  - RULE-SET,global_domain,Global
   - RULE-SET,geolocation-!cn,Final
 
   # ✅ IP组 通常 域名规则应当优先于 IP 规则/域名能提供更精确的匹配/fake-ip 模式依赖域名解析
   - RULE-SET,google_ip,Google,no-resolve
   - RULE-SET,netflix_ip,NETFLIX,no-resolve
   - RULE-SET,telegram_ip,Telegram,no-resolve
-  - RULE-SET,twitter_ip,X
-  - RULE-SET,bilibili_ip,bilibili
-  - RULE-SET,apple_ip,Apple
+  - RULE-SET,twitter_ip,X,no-resolve
+  - RULE-SET,bilibili_ip,bilibili,no-resolve
+  - RULE-SET,apple_ip,Apple,no-resolve
 
   # ✅ 兜底规则
+  - RULE-SET,global_domain,Global
   - RULE-SET,gfw_domain,Final
   - RULE-SET,steam_domain,Steam                           # Steam, 默认直连, 换区时修改此处, 放于GFW之后因为创意工坊需始终代理
   - RULE-SET,cn_domain,China
