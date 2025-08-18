@@ -10,10 +10,11 @@
 本项目提供了完整的代理配置框架，具备以下特点：
 
 - ✨ 精简且常用的规则集，满足主流使用场景
+- ❌ 详尽的广告拦截规则 - [anti-AD](https://github.com/privacy-protection-tools/anti-AD?tab=readme-ov-file) & [AdRules](https://github.com/Cats-Team/AdRules/tree/main?tab=readme-ov-file)
+
 - 🔧 支持 GEO 数据库远程下载，更新更便捷
 - 📦 配置文件结构清晰，注释详尽，方便自定义扩展
 - 📁 rule-providers 以 `.mrs` 格式为主，更快、内存占用更低
-- 🧱 集成 **anti-AD 广告过滤列表**
 - 🎨 支持图标美化
 
 ---
@@ -69,7 +70,8 @@ use-all-proxy-providers: &use-all-proxy-providers         # 代理组通用配�
 - [limbopro/Adblock4limbo](https://github.com/limbopro/Adblock4limbo)  
 - [Loon0x00/LoonManual](https://github.com/Loon0x00/LoonManual)  
 - [luestr/ShuntRules](https://github.com/luestr/ShuntRules)  
-
+- [Cats-Team/AdRules](https://github.com/Cats-Team/AdRules/tree/main?tab=readme-ov-file)
+- [privacy-protection-tools/anti-AD](https://github.com/privacy-protection-tools/anti-AD?tab=readme-ov-file)
 
 🕒 更新日志
 -------
