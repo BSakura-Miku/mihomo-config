@@ -2,7 +2,7 @@
  * @Author: bsakura
  * @Date: 2025-08-05 12:15:04
  * @LastEditors: BSakura
- * @LastEditTime: 2025-08-18 16:31:42
+ * @LastEditTime: 2025-08-18 21:35:19
  * @FilePath: /undefined/Users/bsakura/Documents/github/mihomo-config/CHANGELOG.md
  * @Description: 
  * 
@@ -14,6 +14,7 @@
 - 添加 adrules.list 规则 [Cats-Team/AdRules](https://github.com/Cats-Team/AdRules/tree/main?tab=readme-ov-file)
 - 优化规则顺序
 - 添加 Global 集
+- fake-ip-filter 新增 ` - 'RULE_SET,anti-ad_domain,adrules_domain,anProgramAD_domain'      `
 
 ## Loon Ver.1.2 (2025-08-18)
 - 添加 adrules.list 规则  [AdRules List](https://adrules.top)

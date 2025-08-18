@@ -1,3 +1,13 @@
+<!--
+ * @Author: bsakura
+ * @Date: 2025-08-05 12:15:01
+ * @LastEditors: BSakura
+ * @LastEditTime: 2025-08-18 21:35:27
+ * @FilePath: /undefined/Users/bsakura/Documents/github/mihomo-config/README.md
+ * @Description: 
+ * 
+ * Copyright (c) 2025 by bsakura, All Rights Reserved. 
+-->
 # 🧩 Nikki 配置模板
 
 个人使用的 **Nikki / Loon 配置模板**，专为追求精简、高效、易维护的用户设计  
@@ -43,14 +53,15 @@ use-all-proxy-providers: &use-all-proxy-providers         # 代理组通用配�
 > 非linux系统请注释或删除 `redir-port: 7892` `tproxy-port: 7894` 如 **clash mi** 客户端 
 
 
-3.  将 `mihomo_BS_Template.yml` 导入 Clash 客户端（如 **Clash Verge、Clash Meta for Android**）。
-4.  按照注释提示，根据实际使用软件调整。
-5.  (可选) `nikki.txt` 为 Nikki 程序配置文件，路径 `/etc/config/`。
+3.  将 `mihomo_BS_Template.yml` 导入 Clash 客户端（如 **Clash Verge、Clash Meta for Android**）
+4.  按照注释提示，根据实际使用软件调整
+5.  (可选) `nikki.txt` 为 Nikki 程序配置文件，路径 `/etc/config/`
 
+![clash 面板](<./Resource/FireShot Capture 009 - zashboard - 代理 - [10.10.2.2].png>)
 
 
 ### Loon 配置
-
+![Loon](STIIITCH_2025_08_18_09_27_07.PNG)
 #### Loon Ver.1.0 (2025-08-18)
 
 📌 **说明**  
@@ -61,7 +72,7 @@ use-all-proxy-providers: &use-all-proxy-providers         # 代理组通用配�
 - 初版发布  
 - 集成常用分流规则与代理组  
 - 优化部分策略逻辑，适配日常使用场景  
-
+![部分策略组](./Resource/iShot_2025-08-18_18.20.48.png)
 🔗 **参考资源**
 
 - [Tartarus2014/Loon-Script](https://github.com/Tartarus2014/Loon-Script)  
