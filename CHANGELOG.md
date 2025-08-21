@@ -2,7 +2,7 @@
  * @Author: bsakura
  * @Date: 2025-08-05 12:15:04
  * @LastEditors: BSakura
- * @LastEditTime: 2025-08-18 21:35:19
+ * @LastEditTime: 2025-08-22 06:29:31
  * @FilePath: /undefined/Users/bsakura/Documents/github/mihomo-config/CHANGELOG.md
  * @Description: 
  * 
@@ -10,6 +10,13 @@
 -->
 
 # 📜 更新日志
+
+## Nikki Ver.3.9.2 (2025-08-22)
+- 修改: 流媒体放入国际服务之前
+
+## Loon Ver.1.3 (2024-08-22)
+- 新增 `doh-server = https://223.5.5.5/dns-query,https://223.6.6.6/dns-query`
+
 ## Nikki Ver.3.9.1 (2025-08-18)
 - 添加 adrules.list 规则 [Cats-Team/AdRules](https://github.com/Cats-Team/AdRules/tree/main?tab=readme-ov-file)
 - 优化规则顺序

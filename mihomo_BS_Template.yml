@@ -5,7 +5,7 @@
 # 跑裸核用户请自行去掉下方控制面板模块的注释。
 # 作者: https://github.com/BSakura-Miku
 # 项目地址: https://github.com/BSakura-Miku/mihomo-config
-# Nikki Ver.3.9.1 (2025-08-18)
+# Nikki Ver.3.9.2 (2025-08-22) 修改: 流媒体放入国际服务之前
 # 描述: Clash 配置文件, 包含代理订阅与规则设置
 # 参考
 # https://github.com/refined-fish/clash_rule_fish
@@ -414,18 +414,6 @@ rules:
   - RULE-SET,gemini_domain,AI
   - RULE-SET,ai_domain,AI
 
-  # ✅ 常用国际服务
-  - RULE-SET,github_domain,GitHub
-  - RULE-SET,telegram_domain,Telegram
-  - RULE-SET,twitter_domain,X
-  - RULE-SET,whatsapp_domain,Final
-  - RULE-SET,facebook_domain,Final
-  - RULE-SET,reddit_domain,Final
-  - RULE-SET,google_domain,Google
-  - RULE-SET,apple_domain,Apple
-  - RULE-SET,onedrive_domain,OneDrive
-  - RULE-SET,microsoft_domain,Microsoft
-
   # ✅ 流媒体服务
   - RULE-SET,youtube_domain,YouTube
   - RULE-SET,tiktok_domain,TikTok
@@ -437,6 +425,18 @@ rules:
   - RULE-SET,biliintl_domain,Streaming
   - RULE-SET,bilibili_domain,bilibili
   - RULE-SET,neteasemusic-classical,NetEaseMusic
+
+  # ✅ 常用国际服务
+  - RULE-SET,github_domain,GitHub
+  - RULE-SET,telegram_domain,Telegram
+  - RULE-SET,twitter_domain,X
+  - RULE-SET,whatsapp_domain,Final
+  - RULE-SET,facebook_domain,Final
+  - RULE-SET,reddit_domain,Final
+  - RULE-SET,google_domain,Google
+  - RULE-SET,apple_domain,Apple
+  - RULE-SET,onedrive_domain,OneDrive
+  - RULE-SET,microsoft_domain,Microsoft
 
   # ✅ 游戏相关
   - RULE-SET,epic_domain,Games
