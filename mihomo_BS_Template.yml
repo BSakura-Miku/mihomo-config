@@ -5,7 +5,7 @@
 # 跑裸核用户请自行去掉下方控制面板模块的注释。
 # 作者: https://github.com/BSakura-Miku
 # 项目地址: https://github.com/BSakura-Miku/mihomo-config
-# Nikki Ver.3.9.2 (2025-08-22) 修改: 流媒体放入国际服务之前
+# Nikki Ver.3.9.5 (2025-08-31) 增加: BT tracker常用域名 修复: 部分规则写法错误
 # 描述: Clash 配置文件, 包含代理订阅与规则设置
 # 参考
 # https://github.com/refined-fish/clash_rule_fish
@@ -194,6 +194,7 @@ dns:
     - 'GEOSITE:synology'                                  # 群晖域名
     - 'GEOSITE:category-ntp'                              # NTP域名
 
+    - '+.mikrotik.com'
     - '+.services.googleapis.cn'
     - '+.msftconnecttest.com'       
     - '+.msftncsi.com'        
@@ -387,9 +388,12 @@ proxy-groups:
 rules:
 #### 对于必须直连者直接使用direct写死, 其他尽可能使用代理组以方便面板控制以及切换测试
   # ✅ 自定义高优先
-  - RULE-SET,tmdb_domain,Final                            # 影视刮削访问缓慢, 建议代理
+  # - DOMAIN-SUFFIX,mikrotik.com,China                      # mikrotik 相关
+  - DOMAIN-SUFFIX,iadsdk.apple.com,Apple                  # appstore 加载
+  - RULE-SET,tmdb_domain,Proxy                            # 影视刮削访问缓慢, 建议代理
   - RULE-SET,tailscale_domain,DIRECT                      # tailscale 必须直连, 否则打洞失败
-
+  - RULE-SET,bt_tracker_domain,China                      # BT/PT 下载
+  - DST-PORT,23334-23336,China                            # BT/PT 监听端口
   # ✅ 私有网络/直连规则/广告/拦截
   - RULE-SET,private_domain,China
   - RULE-SET,private-ip,China,no-resolve
@@ -477,6 +481,9 @@ rule-providers:
   cn_domain: {<<: *domain, path: ./ruleset/cn_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs'}
   cn_ip: {<<: *ip, path: ./ruleset/cn_ip.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/cn.mrs'}
   private-ip: {<<: *ip, path: ./ruleset/private-ip.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/private.mrs'}
+
+  # 🟢 BT/PT 下载
+  bt_tracker_domain: {<<: *domain, path: ./ruleset/private-ip.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-public-tracker.mrs'}
 
   # 🌍 通用代理 / 全球规则
   proxy_domain: {<<: *domain, path: ./ruleset/proxy_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo-lite/geosite/proxy.mrs'}
