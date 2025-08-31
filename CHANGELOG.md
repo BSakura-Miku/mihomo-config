@@ -2,7 +2,7 @@
  * @Author: bsakura
  * @Date: 2025-08-05 12:15:04
  * @LastEditors: BSakura
- * @LastEditTime: 2025-08-22 06:29:31
+ * @LastEditTime: 2025-08-31 10:16:02
  * @FilePath: /undefined/Users/bsakura/Documents/github/mihomo-config/CHANGELOG.md
  * @Description: 
  * 
@@ -13,7 +13,7 @@
 
 ## Nikki Ver.3.9.5 (2025-08-31)
 - 增加: BT tracker常用域名 修复: 部分规则写法错误
-
+- 放行`iadsdk.apple.com`域名 避免 AppStore 加载错误
 ## Nikki Ver.3.9.2 (2025-08-22)
 - 修改: 流媒体放入国际服务之前
 
