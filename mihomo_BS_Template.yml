@@ -5,7 +5,7 @@
 # 跑裸核用户请自行去掉下方控制面板模块的注释。
 # 作者: https://github.com/BSakura-Miku
 # 项目地址: https://github.com/BSakura-Miku/mihomo-config
-# Nikki Ver.3.9.5 (2025-08-31) 增加: BT tracker常用域名 修复: 部分规则写法错误
+# Nikki Ver.3.9.6 (2025-09-07) 增加: PT 站点直连
 # 描述: Clash 配置文件, 包含代理订阅与规则设置
 # 参考
 # https://github.com/refined-fish/clash_rule_fish
@@ -154,7 +154,11 @@ tun:
   # auto-redirect: true                                   # 仅Linux有效, 自动配置 iptables/nftables 以重定向 TCP 连接, 需要auto-route: true                    
   # strict-route: false                                   # 将所有连接路由到 tun 来防止泄漏, 但你的设备将无法其他设备被访问, 严重拖慢Windows访问速度, 可能造成虚拟机运行异常                    
   # endpoint-independent-nat: false                       # 独立于端点的 NAT, 性能可能下降, 不建议不需要时开启                              
-  # route-exclude-address-set:                            # 将指定规则集中的目标 IP CIDR 规则添加到防火墙, 匹配的流量将绕过路由 仅支持 Linux, 且需要 nftables 以及auto-route 和 auto-redirect 已启用
+  # 将指定规则集中的目标 IP CIDR 规则添加到防火墙, 匹配的流量将绕过路由 仅支持 Linux, 且需要 nftables 以及auto-route 和 auto-redirect 已启用
+  route-exclude-address-set:
+    - 10.10.2.81/32
+    - 10.10.2.82/32
+    - 10.10.2.83/32
   #   - 'RULE_SET:cn_ip'                                  # 绕过中国大陆ip gui中可设置 代理配置/绕过
   
 # DNS模块
@@ -193,6 +197,16 @@ dns:
     - 'GEOSITE:tracker'                                   # tracker域名, 最好不要加pt站域名, CF加速容易无法访问
     - 'GEOSITE:synology'                                  # 群晖域名
     - 'GEOSITE:category-ntp'                              # NTP域名
+
+    # PT馒头
+    - '+.manfuz.co'
+    - '+.halomt.com'
+    - '+.m-team.cc'      
+    - '+.m-team.io' 
+    
+    - '+.pttime.org'                                      # PT时间
+    - '+.cspt.top'                                        # PT财神
+    - '+.ptzone.xyz'                                      # PTzone
 
     - '+.mikrotik.com'
     - '+.services.googleapis.cn'
@@ -306,7 +320,7 @@ proxy-groups:
 
 # 漏网之鱼 推荐选择 Proxy
   - {name: Final, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png, <<: *Select, proxies: [Proxy, DIRECT]}
-
+  - {name: PT, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png, <<: *Select, proxies: [HongKong, TaiWan, Japan, Korea, Singapore, America, Proxy, DIRECT]}
 # 节点切换
   - {name: Proxy, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Rocket.png, <<: *Select, proxies: [HongKong, TaiWan, Japan, Korea, Singapore, America, AllServer, DIRECT]}
   - {name: Block, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AdBlack.png, <<: *Select, proxies: [REJECT, DIRECT]}
@@ -392,8 +406,26 @@ rules:
   - DOMAIN-SUFFIX,iadsdk.apple.com,Apple                  # appstore 加载
   - RULE-SET,tmdb_domain,Proxy                            # 影视刮削访问缓慢, 建议代理
   - RULE-SET,tailscale_domain,DIRECT                      # tailscale 必须直连, 否则打洞失败
-  - RULE-SET,bt_tracker_domain,China                      # BT/PT 下载
-  - DST-PORT,23334-23336,China                            # BT/PT 监听端口
+  - RULE-SET,bt_tracker_domain,DIRECT                     # BT/PT 下载
+
+  # 指定内网 IP 直连
+  - SRC-IP-CIDR,10.10.2.81/32,DIRECT                      # BT/PT 
+  - SRC-IP-CIDR,10.10.2.82/32,DIRECT                      # BT/PT 
+  - SRC-IP-CIDR,10.10.2.83/32,DIRECT                      # BT/PT 
+  - SRC-IP-CIDR,10.10.2.84/32,DIRECT                      # BT/PT 
+
+  # - DOMAIN-SUFFIX,m-team.cc,PT                           # PT馒头
+  - DOMAIN,kp.m-team.cc,PT                                # PT馒头站点域名
+  # PT馒头 下载种子域名
+  - DOMAIN,az2.halomt.com,PT 
+  - DOMAIN,az1.halomt.com,PT
+  - DOMAIN,cx1.manfuz.co,PT 
+  - DOMAIN,cx2.manfuz.co,PT
+
+  - DOMAIN,pttime.org,PT                                  # PT时间
+  - DOMAIN,cspt.top,PT                                    # PT财神
+  - DOMAIN,ptzone.xyz,PT                                  # PTzone
+
   # ✅ 私有网络/直连规则/广告/拦截
   - RULE-SET,private_domain,China
   - RULE-SET,private-ip,China,no-resolve

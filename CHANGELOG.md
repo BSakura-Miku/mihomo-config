@@ -11,6 +11,9 @@
 
 # 📜 更新日志
 
+## Nikki Ver.3.9.5 (2025-09-07)
+- 增加: PT 站点直连
+
 ## Nikki Ver.3.9.5 (2025-08-31)
 - 增加: BT tracker常用域名 修复: 部分规则写法错误
 - 放行`iadsdk.apple.com`域名 避免 AppStore 加载错误
