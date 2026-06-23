@@ -327,9 +327,9 @@ proxy-groups:
   - {name: Games, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Game.png, <<: *Select}
 
 # 服务分流组
-  - {name: Apple, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Apple_1.png, <<: *Select}
+  - {name: Apple, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Apple_1.png, <<: *Select, proxies: [DIRECT, Proxy, HongKong, TaiWan, Japan, Korea, Singapore, America, AllServer]}
   - {name: Google, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Google_Search.png, <<: *Select}
-  - {name: Microsoft, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Windows_11.png, <<: *Select}
+  - {name: Microsoft, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Windows_11.png, <<: *Select, proxies: [DIRECT, Proxy, HongKong, TaiWan, Japan, Korea, Singapore, America, AllServer]}
 
 # 地区节点组
   - {name: HongKong, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Hong_Kong.png, type: select, proxies: [HK-Auto, HK-FallBack], include-all-providers: true, filter: *HK}
@@ -471,6 +471,7 @@ rules:
   - RULE-SET,playstation_domain,Games
   - RULE-SET,nintendo_domain,Games
   - RULE-SET,games_domain,Games
+  - RULE-SET,steam_domain,Steam
 
   # ✅ 代理类/全局规则
   - RULE-SET,proxy_domain,Final
@@ -487,7 +488,6 @@ rules:
   # ✅ 兜底规则
   - RULE-SET,global_domain,Global
   - RULE-SET,gfw_domain,Final
-  - RULE-SET,steam_domain,Steam                           # Steam 创意工坊等放在 GFW 后处理
   - RULE-SET,cn_domain,China
   - RULE-SET,cn_ip,China
   - GEOIP,cn,DIRECT
