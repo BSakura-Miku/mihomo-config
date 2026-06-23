@@ -1,102 +1,108 @@
-<!--
- * @Author: bsakura
- * @Date: 2025-08-05 12:15:01
- * @LastEditors: BSakura
- * @LastEditTime: 2025-08-18 21:35:27
- * @FilePath: /undefined/Users/bsakura/Documents/github/mihomo-config/README.md
- * @Description: 
- * 
- * Copyright (c) 2025 by bsakura, All Rights Reserved. 
--->
-# 🧩 Nikki 配置模板
+# BSakura mihomo-config
 
-个人使用的 **Nikki / Loon 配置模板**，专为追求精简、高效、易维护的用户设计  
-适用于 **OpenClash / Clash Meta / MetaCubeX / Nikki / Clash mi** 等 `mihomo` 内核代理客户端 以及 **Loon**
+个人使用的 mihomo / Loon 配置模板。
 
----
+当前主线是家庭网关架构：RouterOS 作为主路由，按 CNIP / 策略路由把需要代理的 IPv4 流量送到 mihomo 旁路网关，IPv6 默认由 RouterOS 直连，不进入代理链路。
 
-## 📦 项目描述
+最后更新：2026-06-23
 
-本项目提供了完整的代理配置框架，具备以下特点：
+## 文件
 
-- ✨ 精简且常用的规则集，满足主流使用场景
-- ❌ 详尽的广告拦截规则 - [anti-AD](https://github.com/privacy-protection-tools/anti-AD?tab=readme-ov-file) & [AdRules](https://github.com/Cats-Team/AdRules/tree/main?tab=readme-ov-file)
+| 文件 | 用途 |
+| --- | --- |
+| `mihomo_BS_Template.yml` | mihomo 网关模板，适合 Linux / LXC / 裸核运行 |
+| `Loon/Loon_BS.conf` | Loon iPhone 默认模板 |
+| `Loon/Loon_BS_iPhone.conf` | Loon iPhone 模板 |
+| `Loon/Loon_BS_mac.conf` | Loon Mac 模板 |
+| `nikki.txt` | Nikki/OpenWrt 相关参考配置 |
 
-- 🔧 支持 GEO 数据库远程下载，更新更便捷
-- 📦 配置文件结构清晰，注释详尽，方便自定义扩展
-- 📁 rule-providers 以 `.mrs` 格式为主，更快、内存占用更低
-- 🎨 支持图标美化
+## 隐私说明
 
----
+仓库内配置是公开模板，已移除或替换以下内容：
 
-## 📌 快速开始
+- 机场订阅链接
+- WireGuard 私钥、公钥、endpoint
+- VLESS / Trojan / SS 等手写节点
+- mihomo 面板 `secret`
+- 其他 token / key / 私密节点信息
 
-1. 下载载配置文件：`mihomo_BS_Template.yml` 
+使用前请搜索 `REDACTED`、`CHANGE_ME`、`example.com`、`<...>` 并替换成自己的信息。
 
-2. 修改 `订阅地址` `机场名称`
-```
-proxy-providers:
-  机场名称:
-    <<: *proxy-providers-general                          # 引用上文的yaml锚点
-    url: '订阅链接'
-    override:                                             # 可选，覆写设置
-      additional-prefix: 'ik|'                            # 可选，给订阅添加前缀
-    #path: ./providers/proxy/proxy-provider1.yaml         # 可选，指定下载路径
-  # provider2:
+## mihomo 网关思路
 
-# 代理组设置
-use-all-proxy-providers: &use-all-proxy-providers         # 代理组通用配置
-  use:
-    - 机场名称
-    # - provider2:
-```
-> 非linux系统请注释或删除 `redir-port: 7892` `tproxy-port: 7894` 如 **clash mi** 客户端 
+默认端口：
 
+| 端口 | 作用 |
+| --- | --- |
+| `7890` | HTTP 代理 |
+| `7891` | SOCKS5 代理 |
+| `7892` | redir TCP 透明代理 |
+| `7893` | mixed HTTP/SOCKS |
+| `7894` | tproxy UDP 透明代理 |
+| `9090` | external-controller / Zashboard |
 
-3.  将 `mihomo_BS_Template.yml` 导入 Clash 客户端（如 **Clash Verge、Clash Meta for Android**）
-4.  按照注释提示，根据实际使用软件调整
-5.  (可选) `nikki.txt` 为 Nikki 程序配置文件，路径 `/etc/config/`
+关键设计：
 
-![clash 面板](<./Resource/FireShot Capture 009 - zashboard - 代理 - [10.10.2.2].png>)
+- `ipv6: false`，因为机场节点不支持 IPv6，IPv6 由主路由直连。
+- `fake-ip-range: 198.18.0.0/15`，配合 RouterOS 的 Fake-IP 回程路由。
+- `Final` 策略组包含 `Proxy`、`AllServer`、`DIRECT`，方便兜底策略快速切换。
+- PT tracker、内网、国内常用服务优先直连。
+- `LoadBalance` 默认不使用，避免日常连接体验不稳定。
 
+## RouterOS 配合项
 
-### Loon 配置
-![Loon](./Resource/STIIITCH_2025_08_18_09_27_07.PNG)
-#### Loon Ver.1.0 (2025-08-18)
+典型配合方式：
 
-📌 **说明**  
-本配置文件为 **Loon 专用配置**，结合个人实际使用需求与 Nikki 配置文件编写。
+- RouterOS 负责 DHCP、DNS 指向、CNIP 初筛和策略路由。
+- mihomo 旁路网关负责透明代理、规则分流、Fake-IP。
+- AdGuardHome 可作为局域网 DNS 入口，RouterOS 保留上游和路由控制。
 
-🆕 **更新内容**
+需要按自己的环境调整：
 
-- 初版发布  
-- 集成常用分流规则与代理组  
-- 优化部分策略逻辑，适配日常使用场景  
-![部分策略组](./Resource/iShot_2025-08-18_18.20.48.png)
-🔗 **参考资源**
+- mihomo 网关 IP
+- `to_side_router` 路由表或等价策略路由
+- Fake-IP 网段回程路由
+- QUIC bypass 策略
+- DNS 劫持/重定向策略
 
-- [Tartarus2014/Loon-Script](https://github.com/Tartarus2014/Loon-Script)  
-- [luestr/ProxyResource](https://github.com/luestr/ProxyResource)  
-- [fmz200/wool_scripts](https://github.com/fmz200/wool_scripts)  
-- [limbopro/Adblock4limbo](https://github.com/limbopro/Adblock4limbo)  
-- [Loon0x00/LoonManual](https://github.com/Loon0x00/LoonManual)  
-- [luestr/ShuntRules](https://github.com/luestr/ShuntRules)  
-- [Cats-Team/AdRules](https://github.com/Cats-Team/AdRules/tree/main?tab=readme-ov-file)
-- [privacy-protection-tools/anti-AD](https://github.com/privacy-protection-tools/anti-AD?tab=readme-ov-file)
+## Loon 模板
 
-🕒 更新日志
--------
+Loon 配置保留了日常使用策略组：
 
-详见 [`CHANGELOG.md`](CHANGELOG.md)
+- `Final`
+- `Proxy`
+- `AI`
+- `Speedtest`
+- `GitHub`
+- `YouTube`
+- `NETFLIX`
+- `Telegram`
+- `Apple`
+- `Google`
+- `Microsoft`
+- 地区节点组和自动测速组
 
-## 🧠 参考项目
+`[Proxy]` 和 `[Remote Proxy]` 内仅保留示例。导入前需要替换自己的订阅和手写节点。
 
+## 使用步骤
+
+1. 下载对应模板。
+2. 替换订阅链接、面板密钥和节点占位符。
+3. 根据客户端环境调整端口和透明代理选项。
+4. 用 mihomo / Loon 自带检查功能确认配置可加载。
+5. 再接入 RouterOS 策略路由或客户端分流。
+
+## 参考
+
+- [MetaCubeX mihomo 文档](https://wiki.metacubex.one/config/)
 - [refined-fish/clash_rule_fish](https://github.com/refined-fish/clash_rule_fish)
 - [liandu2024/clash](https://github.com/liandu2024/clash)
 - [Loyalsoldier/v2ray-rules-dat](https://github.com/Loyalsoldier/v2ray-rules-dat)
 - [qichiyuhub/rule](https://github.com/qichiyuhub/rule)
 - [Coldvvater/Mononoke](https://github.com/Coldvvater/Mononoke)
-- [privacy-protection-tools/anti-AD](https://github.com/privacy-protection-tools/anti-AD)
----
--  以及上文 Loon 相关资源
+- [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script)
+- [luestr/ProxyResource](https://github.com/luestr/ProxyResource)
 
+## 更新日志
+
+详见 [`CHANGELOG.md`](CHANGELOG.md)。

@@ -4,12 +4,19 @@
  * @LastEditors: BSakura
  * @LastEditTime: 2025-08-31 10:16:02
  * @FilePath: /undefined/Users/bsakura/Documents/github/mihomo-config/CHANGELOG.md
- * @Description: 
- * 
- * Copyright (c) 2025 by bsakura, All Rights Reserved. 
+ * @Description:
+ *
+ * Copyright (c) 2025 by bsakura, All Rights Reserved.
 -->
 
 # 📜 更新日志
+
+## mihomo gateway / Loon Ver.1.6 (2026-06-23)
+- 同步当前 RouterOS + CT202 mihomo 旁路网关配置结构。
+- 更新 `mihomo_BS_Template.yml` 顶部说明、端口、Fake-IP、Final/AllServer 等当前策略。
+- 新增 Loon Mac / iPhone 发布版模板。
+- 移除公开模板中的订阅链接、WireGuard 节点、手写代理节点与面板 secret。
+- README 改写为当前家庭网关和客户端模板说明。
 
 ## Nikki Ver.3.9.5 (2025-09-07)
 - 增加: PT 站点直连
@@ -35,24 +42,24 @@
 - 添加 Global 集
 
 ## Nikki Ver.1.1 (2025-08-18)
-- 修改dns-reject-mode = Request 
+- 修改dns-reject-mode = Request
 
 ## Loon Ver.1.0 (2025-08-18)
-📌 **说明**  
-本配置文件为 **Loon 专用配置**，结合个人实际使用需求与 Nikki 配置文件编写。  
+📌 **说明**
+本配置文件为 **Loon 专用配置**，结合个人实际使用需求与 Nikki 配置文件编写。
 
-🆕 **更新内容**  
-- 初版发布  
-- 集成常用分流规则与代理组  
-- 优化部分策略逻辑，适配日常使用场景  
+🆕 **更新内容**
+- 初版发布
+- 集成常用分流规则与代理组
+- 优化部分策略逻辑，适配日常使用场景
 
-🔗 **参考资源**  
--  [Tartarus2014/Loon-Script](https://github.com/Tartarus2014/Loon-Script)  
--  [luestr/ProxyResource](https://github.com/luestr/ProxyResource)  
--  [fmz200/wool_scripts](https://github.com/fmz200/wool_scripts)  
--  [limbopro/Adblock4limbo](https://github.com/limbopro/Adblock4limbo)  
--  [Loon0x00/LoonManual](https://github.com/Loon0x00/LoonManual)  
--  [luestr/ShuntRules](https://github.com/luestr/ShuntRules)  
+🔗 **参考资源**
+-  [Tartarus2014/Loon-Script](https://github.com/Tartarus2014/Loon-Script)
+-  [luestr/ProxyResource](https://github.com/luestr/ProxyResource)
+-  [fmz200/wool_scripts](https://github.com/fmz200/wool_scripts)
+-  [limbopro/Adblock4limbo](https://github.com/limbopro/Adblock4limbo)
+-  [Loon0x00/LoonManual](https://github.com/Loon0x00/LoonManual)
+-  [luestr/ShuntRules](https://github.com/luestr/ShuntRules)
 
 ## Nikki Ver.3.9 (2025-08-17)
 - 新增韩国策略组 国内修改为China 部分策略优化
