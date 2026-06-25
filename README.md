@@ -4,7 +4,7 @@
 
 当前主线是家庭网关架构：RouterOS 作为主路由，按 CNIP / 策略路由把需要代理的 IPv4 流量送到 mihomo 旁路网关，IPv6 默认由 RouterOS 直连，不进入代理链路。
 
-最后更新：2026-06-23
+最后更新：2026-06-25
 
 ## 文件
 
@@ -45,6 +45,7 @@
 
 - `ipv6: false`，因为机场节点不支持 IPv6，IPv6 由主路由直连。
 - `fake-ip-range: 198.18.0.0/15`，配合 RouterOS 的 Fake-IP 回程路由。
+- 外部面板固定为 Zashboard，并配置 `external-ui-url`，避免更新 UI 时回退到其他默认面板。
 - `Final` 策略组包含 `Proxy`、`AllServer`、`DIRECT`，方便兜底策略快速切换。
 - PT tracker、内网、国内常用服务优先直连。
 - `LoadBalance` 默认不使用，避免日常连接体验不稳定。

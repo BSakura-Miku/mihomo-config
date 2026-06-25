@@ -101,6 +101,8 @@ profile:
 external-controller: 0.0.0.0:9090                         # 面板/API 对内网开放; 不应暴露到 WAN
 secret: '<CHANGE_ME>'                # API 面板访问密钥
 external-ui: /etc/mihomo/ui                               # Zashboard 静态文件目录
+external-ui-name: zashboard                               # 外部 UI 名称; 避免更新时回退到默认面板
+external-ui-url: "https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip"
 
 # 嗅探
 sniffer:                                                  # 从 HTTP/TLS/QUIC 中识别域名, 提高透明代理命中域名规则的概率
