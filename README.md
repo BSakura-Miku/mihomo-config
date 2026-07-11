@@ -44,7 +44,7 @@
 关键设计：
 
 - `ipv6: false`，因为机场节点不支持 IPv6，IPv6 由主路由直连。
-- `fake-ip-range: 198.18.0.0/15`，配合 RouterOS 的 Fake-IP 回程路由。
+- `fake-ip-range: 198.18.0.0/16`，与 RouterOS 的 Fake-IP 回程路由和本地地址列表保持一致。
 - 外部面板固定为 Zashboard，并配置 `external-ui-url`，避免更新 UI 时回退到其他默认面板。
 - `Final` 策略组包含 `Proxy`、`AllServer`、`DIRECT`，方便兜底策略快速切换。
 - PT tracker、内网、国内常用服务优先直连。

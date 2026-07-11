@@ -178,7 +178,7 @@ dns:
   enhanced-mode: fake-ip
 
   # fake-ip 黑名单: 命中的域名使用真实解析, 适合内网、国内服务、PT/BT tracker、NTP 等。
-  fake-ip-range: 198.18.0.0/15
+  fake-ip-range: 198.18.0.0/16
   fake-ip-filter-mode: blacklist
   fake-ip-filter:
     - 'RULE-SET,private_domain,cn_domain'

@@ -48,7 +48,7 @@ config mixin 'mixin'
 	list tun_dns_hijacks 'udp://any:53'
 	option dns_listen '[::]:1053'
 	option dns_mode 'fake-ip'
-	option fake_ip_range '198.18.0.0/15'
+	option fake_ip_range '198.18.0.0/16'
 	option fake_ip_filter '0'
 	option hosts '0'
 	option dns_nameserver '0'
@@ -189,6 +189,5 @@ config routing 'routing'
 	option tun_route_table '81'
 	option cgroup_id '0x12061206'
 	option cgroup_name 'nikki'
-
 
 
