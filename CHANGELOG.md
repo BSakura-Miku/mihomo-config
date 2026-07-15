@@ -11,6 +11,14 @@
 
 # 📜 更新日志
 
+## Loon Ver.1.7 (2026-07-15)
+- 合并重复的 iPhone / Mac 发布模板，统一使用 `Loon/Loon_BS.conf`。
+- 删除不再使用的手写 Reality 节点示例和失效远程脚本。
+- Global 默认策略调整为 Final，节点测速与故障转移周期调整为 300 秒。
+- 订阅示例启用 UDP、禁用 QUIC，并保持 TLS 证书验证。
+- 修正 IPv4 / IPv6 preferred 模式注释。
+- 移除公开模板中残留的 MITM CA、CA 口令、家庭 SSID 与个人主机名。
+
 ## mihomo gateway / Loon Ver.1.6 (2026-06-23)
 - 同步当前 RouterOS + CT202 mihomo 旁路网关配置结构。
 - 更新 `mihomo_BS_Template.yml` 顶部说明、端口、Fake-IP、Final/AllServer 等当前策略。

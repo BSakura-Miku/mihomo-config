@@ -4,16 +4,14 @@
 
 当前主线是家庭网关架构：RouterOS 作为主路由，按 CNIP / 策略路由把需要代理的 IPv4 流量送到 mihomo 旁路网关，IPv6 默认由 RouterOS 直连，不进入代理链路。
 
-最后更新：2026-06-25
+最后更新：2026-07-15
 
 ## 文件
 
 | 文件 | 用途 |
 | --- | --- |
 | `mihomo_BS_Template.yml` | mihomo 网关模板，适合 Linux / LXC / 裸核运行 |
-| `Loon/Loon_BS.conf` | Loon iPhone 默认模板 |
-| `Loon/Loon_BS_iPhone.conf` | Loon iPhone 模板 |
-| `Loon/Loon_BS_mac.conf` | Loon Mac 模板 |
+| `Loon/Loon_BS.conf` | Loon iPhone / Mac 通用模板 |
 | `nikki.txt` | Nikki/OpenWrt 相关参考配置 |
 
 ## 隐私说明
@@ -23,6 +21,8 @@
 - 机场订阅链接
 - WireGuard 私钥、公钥、endpoint
 - VLESS / Trojan / SS 等手写节点
+- Loon MITM CA 与口令
+- 家庭 Wi-Fi SSID 与本地主机名
 - mihomo 面板 `secret`
 - 其他 token / key / 私密节点信息
 
