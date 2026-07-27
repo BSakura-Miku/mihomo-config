@@ -11,6 +11,10 @@
 
 # 📜 更新日志
 
+## Loon Ver.1.8 (2026-07-27)
+- 为 Blackmagic Design 与 Wabotech 域名增加直连规则，并覆盖其全部子域名。
+- 同步 iPhone / Mac 通用公开模板。
+
 ## Loon Ver.1.7 (2026-07-15)
 - 合并重复的 iPhone / Mac 发布模板，统一使用 `Loon/Loon_BS.conf`。
 - 删除不再使用的手写 Reality 节点示例和失效远程脚本。
