@@ -4,7 +4,7 @@
 
 当前主线是家庭网关架构：RouterOS 作为主路由，按 CNIP / 策略路由把需要代理的 IPv4 流量送到 mihomo 旁路网关，IPv6 默认由 RouterOS 直连，不进入代理链路。
 
-最后更新：2026-07-27
+最后更新：2026-08-12
 
 ## 文件
 
@@ -47,6 +47,7 @@
 - `fake-ip-range: 198.18.0.0/16`，与 RouterOS 的 Fake-IP 回程路由和本地地址列表保持一致。
 - 外部面板固定为 Zashboard，并配置 `external-ui-url`，避免更新 UI 时回退到其他默认面板。
 - `Final` 策略组包含 `Proxy`、`AllServer`、`DIRECT`，方便兜底策略快速切换。
+- `AI` 可优先使用自建 `VLESS + REALITY + Vision` 节点，并通过 `AI-专线` 在故障时回退机场策略。
 - PT tracker、内网、国内常用服务优先直连。
 - `LoadBalance` 默认不使用，避免日常连接体验不稳定。
 
@@ -92,6 +93,10 @@ Loon 配置保留了日常使用策略组：
 3. 根据客户端环境调整端口和透明代理选项。
 4. 用 mihomo / Loon 自带检查功能确认配置可加载。
 5. 再接入 RouterOS 策略路由或客户端分流。
+
+### 自建 AI 节点
+
+模板提供 `Seoul-AI` 占位节点和 `AI-专线` 故障转移组。使用时必须替换服务器地址、端口、UUID、REALITY 公钥、Short ID 和 SNI；公开仓库不应提交这些真实值。AI 规则仍统一指向 `AI`，不会改变 PT、流媒体、国内直连或 IPv6 路径。
 
 ## 参考
 

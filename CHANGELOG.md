@@ -11,6 +11,12 @@
 
 # 📜 更新日志
 
+## mihomo gateway Ver.1.9 (2026-08-12)
+- 增加脱敏的 `VLESS + REALITY + Vision` 自建节点示例。
+- 增加 `AI-专线` 故障转移组，自建节点失效时回退现有 `Proxy`。
+- `AI` 策略默认优先使用专线，同时保留地区、机场和直连的手动选择。
+- 真实服务器地址、UUID、REALITY 公钥和 Short ID 均未写入公开仓库。
+
 ## Loon Ver.1.8 (2026-07-27)
 - 为 Blackmagic Design 与 Wabotech 域名增加直连规则，并覆盖其全部子域名。
 - 同步 iPhone / Mac 通用公开模板。
