@@ -11,10 +11,11 @@
 
 # 📜 更新日志
 
-## mihomo gateway Ver.1.9 (2026-08-12)
+## mihomo gateway / Loon Ver.1.9 (2026-08-12)
 - 增加脱敏的 `VLESS + REALITY + Vision` 自建节点示例。
 - 增加 `AI-专线` 故障转移组，自建节点失效时回退现有 `Proxy`。
 - `AI` 策略默认优先使用专线，同时保留地区、机场和直连的手动选择。
+- 同步 Mac 与 iPhone 的 Loon 节点和策略组结构。
 - 真实服务器地址、UUID、REALITY 公钥和 Short ID 均未写入公开仓库。
 
 ## Loon Ver.1.8 (2026-07-27)

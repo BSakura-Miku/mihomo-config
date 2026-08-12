@@ -74,6 +74,7 @@ Loon 配置保留了日常使用策略组：
 - `Final`
 - `Proxy`
 - `AI`
+- `AI-专线`（自建 REALITY 节点优先、机场策略回退）
 - `Speedtest`
 - `GitHub`
 - `YouTube`
