@@ -8,7 +8,7 @@
 # 项目地址: https://github.com/BSakura-Miku/mihomo-config
 # 当前版本: F50 Pro UFI TUN profile / 2026-08-17
 # 最后更新: 2026-08-17
-# 注意: 本文件是公开脱敏模板; 使用前请替换订阅地址和面板密钥占位符。
+# 注意: 本文件是公开脱敏模板; 使用前请替换订阅、首尔自建节点和面板密钥占位符。
 # 参考
 # https://wiki.metacubex.one/config/
 # https://github.com/refined-fish/clash_rule_fish
@@ -54,8 +54,22 @@ use-all-proxy-providers: &use-all-proxy-providers
   use:
     - ikuuu
     - PQJC
-# 不保留内联节点，仅使用上面的个人订阅 provider。
-proxies: []
+# 首尔自建 AI 节点示例; 所有值均为公开占位符。
+proxies:
+  - name: Seoul-AI
+    type: vless
+    server: seoul-ai.example.com
+    port: 24443
+    uuid: 00000000-0000-0000-0000-000000000000
+    network: tcp
+    tls: true
+    udp: true
+    flow: xtls-rprx-vision
+    servername: www.cloudflare.com
+    client-fingerprint: chrome
+    reality-opts:
+      public-key: <REALITY_PUBLIC_KEY>
+      short-id: <REALITY_SHORT_ID>
 # 全局配置
 mode: rule # 按规则分流
 log-level: warning # 日常使用 warning; 排障时可临时改为 info/debug
@@ -221,7 +235,7 @@ proxy-groups:
   - {name: China, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/China_Map.png', <<: *Select, proxies: [DIRECT, Final]}
   - {name: Global, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Global.png', <<: *Select, proxies: [Final, DIRECT]}
   # 业务分流组: 保留独立选择, 便于日常按服务切节点。
-  - {name: AI, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png', <<: *Select}
+  - {name: AI, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png', type: select, proxies: [AI-专线, Seoul-AI, Proxy, HongKong, TaiWan, Japan, Korea, Singapore, America, AllServer, DIRECT]}
   - {name: Speedtest, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Speedtest.png', <<: *Select}
   - {name: GitHub, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/GitHub.png', <<: *Select}
   - {name: YouTube, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/YouTube.png', <<: *Select}
@@ -248,6 +262,8 @@ proxy-groups:
   - {name: America, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/United_States.png', type: select, proxies: [US-Auto, US-FallBack], include-all-providers: true, filter: *US}
   # 全部节点
   - {name: AllServer, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Airport.png', type: select, proxies: [All-Auto], <<: *use-all-proxy-providers, filter: *All}
+  # AI 专线: 首尔自建节点不可用时回退机场策略。
+  - {name: AI-专线, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png', type: fallback, proxies: [Seoul-AI, Proxy], url: 'https://www.gstatic.com/generate_204', interval: 120, timeout: 3000, lazy: false, max-failed-times: 2}
   # 自动测速组
   - {name: HK-Auto, <<: *UrlTest, filter: *HK, exclude-filter: '(免费|下载|直连)'}
   - {name: TW-Auto, <<: *UrlTest, filter: *TW, exclude-filter: '(免费|下载|直连)'}

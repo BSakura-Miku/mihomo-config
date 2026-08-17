@@ -15,6 +15,7 @@
 - mihomo 网关模板同步 Loon 中可通用的手动直连规则。
 - 新增中兴 F50 Pro / UFI-TOOLS 脱敏模板。
 - F50 Pro 模板修复 provider `override` 浅合并导致通用 UDP/IPv4 设置失效的问题。
+- F50 Pro 模板补齐脱敏 `Seoul-AI` 节点与 `AI-专线` 故障回退组。
 - Mihomo 的 `Global` 默认顺序调整为 `Final` 优先，与 Loon 保持一致。
 - 公开模板未收录私有主机名、WireGuard 回家规则、订阅链接和面板密钥。
 

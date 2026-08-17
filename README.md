@@ -58,6 +58,7 @@
 - 保留 UFI-TOOLS/CMFA 所需的 `cmfa-plugin` 和 TUN 配置。
 - 面板使用 `192.168.0.1:7788`，必须先替换 `<CHANGE_ME>` 密钥。
 - 两个订阅 URL 都是占位符，不包含私人订阅。
+- 包含脱敏的 `Seoul-AI` 节点和 `AI-专线` 回退组，使用前必须替换节点占位参数。
 - 由于 F50 Pro 模板没有 Loon 的 WireGuard `home` 节点，不包含两条“回家”网段规则。
 
 ## RouterOS 配合项
