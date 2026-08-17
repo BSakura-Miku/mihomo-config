@@ -1,11 +1,14 @@
-# mihomo 网关配置模板 - RouterOS CNIP + CT202 旁路透明代理
-# 用途: RouterOS 主路由按 CNIP 初筛, 将非直连 IPv4 流量送入 mihomo 透明代理。
-# 适用: Linux / LXC / 裸核 mihomo, 透明代理使用 redir/tproxy, IPv6 默认直连不进代理。
+# mihomo 网关配置 - ZTE F50 Pro (MU3356) / UFI-TOOLS
+# 用途: 在中兴 F50 Pro 热点机上通过 mihomo TUN 为本机及热点客户端提供规则分流。
+# 架构: UFI-TOOLS/CMFA 负责启动 mihomo; mihomo TUN + auto-route 接管 IPv4。
+# 透明代理: 使用 TUN 模式，不再依赖 CT202 的 RouterOS 与 mihomo-tproxy.service。
+# IPv6: mihomo 内部关闭 IPv6；如需避免 IPv6 绕过代理，请同时在 UFI 网络设置中关闭 LAN IPv6。
+# 维护原则: 日常分流优先实用和可排障; PT tracker/做种直连, PT 站点可按需代理。
 # 作者: https://github.com/BSakura-Miku
 # 项目地址: https://github.com/BSakura-Miku/mihomo-config
-# 当前版本: CT202 gateway profile / public template
-# 最后更新: 2026-08-12
-# 隐私说明: 本模板已移除订阅链接、面板 secret、自建节点凭据等私密信息, 使用前请自行替换占位符。
+# 当前版本: F50 Pro UFI TUN profile / 2026-08-17
+# 最后更新: 2026-08-17
+# 注意: 本文件是公开脱敏模板; 使用前请替换订阅地址和面板密钥占位符。
 # 参考
 # https://wiki.metacubex.one/config/
 # https://github.com/refined-fish/clash_rule_fish
@@ -16,83 +19,56 @@
 
 # 机场订阅与节点导入
 
-proxy-providers-general: &proxy-providers-general         # 订阅通用参数
-  type: http
-  interval: 86400                                         # 每天更新一次订阅
-  proxy: DIRECT                                           # 订阅地址直连拉取, 避免代理链路未启动时无法更新
+# UFI-TOOLS/CMFA 专用开关；界面会据此使用 TUN 模式。
+cmfa-plugin: {mode: tun}
+proxy-providers-general: &proxy-providers-general
+  type: http # 订阅通用参数
+  interval: 86400 # 每天更新一次订阅
+  proxy: DIRECT # 订阅地址直连拉取, 避免代理链路未启动时无法更新
   size-limit: 0
   # exclude-filter 可用于过滤公告/流量/到期等非节点项
   # exclude-filter: '(?i)官网|每月刷新订阅|机场|到期|https://|剩余流量'
-  override:
+  override: &proxy-provider-override
     tfo: false
     mptcp: false
-    udp: true                                             # 启用UDP
+    udp: true # 启用 UDP
     udp-over-tcp: false
     skip-cert-verify: false
-    # down: '50 Mbps'                                     # 下行限速
-    # up: '10 Mbps'                                       # 上行限速
-    ip-version: ipv4                                      # 机场不走 IPv6, 节点解析固定使用 IPv4
-
+    ip-version: ipv4 # 机场不走 IPv6, 节点解析固定使用 IPv4
 # 代理提供者
 proxy-providers:
-  provider_main:
+  ikuuu:
     <<: *proxy-providers-general
-    url: 'https://example.com/subscription/main?token=REDACTED'
+    url: '<SUBSCRIPTION_URL_IKUUU>'
     override:
-      additional-prefix: 'main|'
-  provider_backup:
+      <<: *proxy-provider-override
+      additional-prefix: 'ik|' # 给订阅节点统一加前缀, 便于面板识别
+  PQJC:
     <<: *proxy-providers-general
-    url: 'https://example.com/subscription/backup?token=REDACTED'
+    url: '<SUBSCRIPTION_URL_PQJC>'
     override:
-      additional-prefix: 'backup|'
-
+      <<: *proxy-provider-override
+      additional-prefix: 'PQJC|' # 给订阅节点统一加前缀, 便于面板识别
 # 代理组引用的订阅集合
 use-all-proxy-providers: &use-all-proxy-providers
   use:
-    - provider_main
-    - provider_backup
-
-# 单个自定义节点示例; 所有值均为公开占位符。
-proxies:
-  - name: Seoul-AI
-    type: vless
-    server: 203.0.113.10                                  # 替换为自己的服务器 IP 或域名
-    port: 24443                                           # 替换为服务端监听端口
-    uuid: 00000000-0000-4000-8000-000000000000           # 替换为服务端 UUID
-    network: tcp
-    tls: true
-    udp: true
-    flow: xtls-rprx-vision
-    servername: www.cloudflare.com                       # 必须与 REALITY 服务端 serverNames 一致
-    client-fingerprint: chrome
-    reality-opts:
-      public-key: CHANGE_ME_REALITY_PUBLIC_KEY
-      short-id: 0000000000000000
-
-# 入站端口
-port: 7890                                                # HTTP 代理端口
-socks-port: 7891                                          # SOCKS5 代理端口
-redir-port: 7892                                          # TCP 透明代理入口, nftables 会 redirect 到这里
-mixed-port: 7893                                          # HTTP + SOCKS 混合端口, 便于手动测试
-tproxy-port: 7894                                         # UDP 透明代理入口, nftables 会 tproxy 到这里
-
+    - ikuuu
+    - PQJC
+# 不保留内联节点，仅使用上面的个人订阅 provider。
+proxies: []
 # 全局配置
-mode: rule                                                # 按规则分流
-log-level: warning                                        # 日常保持 warning, 排障时可临时改 info/debug
-allow-lan: true                                           # 允许局域网设备访问代理端口
-bind-address: '*'                                         # 监听全部 IPv4 地址
-ipv6: false                                               # mihomo 内部禁用 IPv6; IPv6 由 RouterOS 直连处理
+mode: rule # 按规则分流
+log-level: warning # 日常使用 warning; 排障时可临时改为 info/debug
+bind-address: '*' # 监听全部 IPv4 地址
+ipv6: false # 机场不支持 IPv6，避免代理链路请求 AAAA 出口
 # udp: true                                               # 全局 UDP 开关通常不需要显式设置
 
-unified-delay: true                                       # 延迟测试更接近真实建连表现
-tcp-concurrent: true                                      # 并发 TCP 连接, 改善部分站点首连体验
-find-process-mode: 'off'                                  # 网关场景没有进程分流意义
-
+unified-delay: true # 延迟测试更接近真实建连表现
+tcp-concurrent: true # 并发 TCP 连接, 改善部分站点首连体验
 # 外部资源与 GEO 数据
 global-ua: mihomo
-etag-support: true                                        # 资源下载的 ETag 支持
-geodata-mode: false                                       # 使用 mmdb 模式
-geodata-loader: memconservative                           # CT202 内存较小, 使用节省内存的加载方式
+etag-support: true # 资源下载的 ETag 支持
+geodata-loader: memconservative # UFI 设备优先节省内存
 geo-auto-update: true
 geo-update-interval: 24
 geox-url:
@@ -100,26 +76,14 @@ geox-url:
   geosite: 'https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat'
   mmdb: 'https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/country.mmdb'
   asn: 'https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/GeoLite2-ASN.mmdb'
-
-# TCP keepalive
-keep-alive-idle: 30
-keep-alive-interval: 30
 disable-keep-alive: false
-
 # 缓存
 profile:
-  store-selected: true                                    # 记住面板里选择的策略组
-  store-fake-ip: true                                     # 保留 fake-ip 映射, 减少重启后的解析抖动
-
-# API / Zashboard
-external-controller: 0.0.0.0:9090                         # 面板/API 对内网开放; 不应暴露到 WAN
-secret: '<CHANGE_ME>'                # API 面板访问密钥
-external-ui: /etc/mihomo/ui                               # Zashboard 静态文件目录
-external-ui-name: zashboard                               # 外部 UI 名称; 避免更新时回退到默认面板
-external-ui-url: "https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip"
-
+  store-selected: true # 记住面板里选择的策略组
+  store-fake-ip: true # 保留 fake-ip 映射, 减少重启后的解析抖动
+external-ui-name: zashboard # 外部 UI 名称; 避免更新时回退到默认面板
 # 嗅探
-sniffer:                                                  # 从 HTTP/TLS/QUIC 中识别域名, 提高透明代理命中域名规则的概率
+sniffer: # 从 HTTP/TLS/QUIC 中识别域名, 提高透明代理命中域名规则的概率
   enable: true
   force-dns-mapping: true
   parse-pure-ip: true
@@ -141,7 +105,7 @@ sniffer:                                                  # 从 HTTP/TLS/QUIC �
     - '+.v2ex.com'
     - '+.speedtest.net'
     - '+.speedtest.com'
-  skip-domain:                                            # 跳过容易误判或本就直连的域名
+  skip-domain: # 跳过容易误判或本就直连的域名
     - '+.baidu.com'
     - '+.apple.com'
     - Mijia Cloud
@@ -149,106 +113,43 @@ sniffer:                                                  # 从 HTTP/TLS/QUIC �
     - '+.oray.com'
     - '+.sunlogin.net'
     - geosite:cn
-  # skip-src-address:
-  # skip-dst-address:
-
-# TUN 配置保留但禁用
-# 当前透明代理不使用 mihomo TUN, 而是使用 mihomo-tproxy.service 管理 nftables redir/tproxy。
-# 在 CT202 LXC 中, mihomo auto-redirect 曾出现 netlink file exists 冲突, 因此保持关闭。
-tun:
-  enable: false
-  stack: mixed
-  dns-hijack: ['any:53', 'tcp://any:53']
-  auto-route: true
-  auto-redirect: true
-  auto-detect-interface: true
-  mtu: 1500                                               # MTU
-  device: mihomo
-  # 如未来改回 TUN, 下列网段应继续排除, 避免内网和保留地址被卷入代理。
-  route-exclude-address:
-    - 10.10.2.0/24
-    - 10.0.0.0/8
-    - 100.64.0.0/10
-    - 127.0.0.0/8
-    - 169.254.0.0/16
-    - 172.16.0.0/12
-    - 192.168.0.0/16
-    - 224.0.0.0/4
-    - 255.255.255.255/32
-  # - 'RULE-SET:cn_ip'
-
-# DNS
-# RouterOS/客户端主要仍使用 AdGuardHome(10.10.2.4)。mihomo DNS 用于透明代理场景中的 fake-ip、
-# 嗅探映射和 DNS 劫持入口, 不作为全网唯一 DNS。
-# IPv6 查询在这里关闭, 避免代理链路尝试处理机场不支持的 IPv6 出口。
-
+    # skip-src-address:
+    # skip-dst-address:
+# DNS：TUN 劫持 53 端口后交给 mihomo fake-ip 解析。
+# IPv6 查询关闭，避免机场不支持 IPv6 时出现解析成功但连接失败。
 dns:
   enable: true
   cache-algorithm: lru
   prefer-h3: true
   respect-rules: false
-  listen: 0.0.0.0:1053                                    # mihomo DNS 入口
   ipv6: false
   enhanced-mode: fake-ip
-
   # fake-ip 黑名单: 命中的域名使用真实解析, 适合内网、国内服务、PT/BT tracker、NTP 等。
   fake-ip-range: 198.18.0.0/16
   fake-ip-filter-mode: blacklist
-  fake-ip-filter:
-    - 'RULE-SET,private_domain,cn_domain'
-    - 'RULE-SET,anti-ad_domain,adrules_domain,banProgramAD_domain'
-    - 'GEOSITE:category-ads-all'
-    - 'RULE-SET,apple_domain'
-    - 'GEOSITE:win-update'
-    - 'GEOSITE:sharepoint'
-    - 'GEOSITE:tailscale'
-    - 'GEOSITE:tracker'
-    - 'GEOSITE:synology'
-    - 'GEOSITE:category-ntp'
-
-
-    # PT/BT 相关域名保持真实解析, 做种和下载种子更可控。
-    - '+.manfuz.co'
-    - '+.halomt.com'
-    - '+.m-team.cc'
-    - '+.m-team.io'
-
-    - '+.pttime.org'                                      # PT 时间
-    - '+.cspt.top'                                        # PT 财神
-    - '+.ptzone.xyz'                                      # PTzone
-
-    # 常见连通性、设备服务和国内域名
-    - '+.mikrotik.com'
-    - '+.services.googleapis.cn'
-    - '+.msftconnecttest.com'
-    - '+.msftncsi.com'
-    - 'time.*.com'
-    - '+.market.xiaomi.com'
-
-  default-nameserver:                                     # 用于解析 DoH 服务器域名, 必须是 IP
+  default-nameserver: # 用于解析 DoH 服务器域名, 必须是 IP
     - 223.5.5.5
     - 223.6.6.6
-  proxy-server-nameserver:                                # 解析代理节点域名, 这里走国内 DoH
+  proxy-server-nameserver: # 解析代理节点域名, 这里走国内 DoH
     - https://223.5.5.5/dns-query
     - https://223.6.6.6/dns-query
-# 兜底 DNS 使用本地运营商 DNS, 降低国内解析延迟。
+    # 使用公共国内 DNS，避免沿用 CT202 所在网络的运营商专用 DNS。
   nameserver:
-    - 211.137.96.205
-    - 183.221.253.100
-
-  # direct-nameserver:                                    # 如需给 DIRECT 流量单独指定 DNS, 再启用
-  #   - system
-  #   - 223.5.5.5
-  # direct-nameserver-follow-policy: false                # 是否遵循 nameserver-policy, 默认为不遵守, 仅当 direct-nameserver 不为空时生效
-  # nameserver-policy:                                    # 可按域名指定 DNS, 暂时不启用以保持链路简单
-  #   'GEOSITE:category-ads-all': rcode://success         # 匹配广告域名, 返回空结果
-  #   '+.baidu.com': '114.114.114.114'                    # 指定百度域名使用114DNS
-  #   '+.arpa': '10.0.0.1'
-  #   'RULE-SET:cn_domain':                               # 指定规则集使用DNS
-  #   - https://doh.pub/dns-query#Proxy                   # 使用DNS并走代理
-  #   - https://dns.alidns.com/dns-query#Proxy&h3=true    # 使用DNS并走代理使用HTTP/3 使用#附加, 使用&连接不同的参数 除了指定代理/接口和 ecs, 其余项的值均为 bool (true/false)
-
-  # fallback:                                             # 旧写法, 不使用
+    - https://223.5.5.5/dns-query
+    - https://119.29.29.29/dns-query
+    # direct-nameserver:                                    # 如需给 DIRECT 流量单独指定 DNS, 再启用
+    #   - system
+    #   - 223.5.5.5
+    # direct-nameserver-follow-policy: false                # 是否遵循 nameserver-policy, 默认为不遵守, 仅当 direct-nameserver 不为空时生效
+    # nameserver-policy:                                    # 可按域名指定 DNS, 暂时不启用以保持链路简单
+    #   'GEOSITE:category-ads-all': rcode://success         # 匹配广告域名, 返回空结果 
+    #   '+.baidu.com': '114.114.114.114'                    # 指定百度域名使用114DNS
+    #   '+.arpa': '10.0.0.1'
+    #   'RULE-SET:cn_domain':                               # 指定规则集使用DNS
+    #   - https://doh.pub/dns-query#Proxy                   # 使用DNS并走代理  
+    #   - https://dns.alidns.com/dns-query#Proxy&h3=true    # 使用DNS并走代理使用HTTP/3 使用#附加, 使用&连接不同的参数 除了指定代理/接口和 ecs, 其余项的值均为 bool (true/false) 
+  fake-ip-filter: ['rule-set:fakeip-filter']
+# fallback:                                             # 旧写法, 不使用
 
 # 策略组与规则锚点
 # 分组设计:
@@ -264,16 +165,14 @@ ip: &ip {type: http, interval: 86400, behavior: ipcidr, format: mrs}
 ip_list: &iplist {type: http, interval: 86400, behavior: ipcidr, format: text}
 domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}
 class: &class {type: http, interval: 86400, behavior: classical, format: text}
-
 # 节点名筛选正则
-HK: &HK '^(?=.*((?i)🇭🇰|香港|(\b(HK|Hong)\b)))(?!.*((?i)回国|校园|游戏|🎮|(\b(GAME)\b))).*$'
-TW: &TW '^(?=.*((?i)🇨🇳|台湾|(\b(TW|Tai|Taiwan)\b)))(?!.*((?i)回国|校园|游戏|🎮|(\b(GAME)\b))).*$'
-JP: &JP '^(?=.*((?i)🇯🇵|日本|川日|东京|大阪|泉日|埼玉|(\b(JP|Japan)\b)))(?!.*((?i)回国|校园|游戏|🎮|(\b(GAME)\b))).*$'
-KR: &KR '^(?=.*((?i)🇰🇷|韩国|韓|首尔|(\b(KR|KOR|Korea)(\d+)?\b)))(?!.*((?i)回国|校园|游戏|🎮|(\b(GAME)\b))).*$'
-SG: &SG '^(?=.*((?i)🇸🇬|新加坡|狮|(\b(SG|Singapore)\b)))(?!.*((?i)回国|校园|游戏|🎮|(\b(GAME)\b))).*$'
-US: &US '^(?=.*((?i)🇺🇸|美国|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|(\b(US|United States)\b)))(?!.*((?i)回国|校园|游戏|🎮|(\b(GAME)\b))).*$'
+HK: &HK "^(?=.*((?i)\U0001F1ED\U0001F1F0|香港|(\\b(HK|Hong)\\b)))(?!.*((?i)回国|校园|游戏|\U0001F3AE|(\\b(GAME)\\b))).*$"
+TW: &TW "^(?=.*((?i)\U0001F1E8\U0001F1F3|台湾|(\\b(TW|Tai|Taiwan)\\b)))(?!.*((?i)回国|校园|游戏|\U0001F3AE|(\\b(GAME)\\b))).*$"
+JP: &JP "^(?=.*((?i)\U0001F1EF\U0001F1F5|日本|川日|东京|大阪|泉日|埼玉|(\\b(JP|Japan)\\b)))(?!.*((?i)回国|校园|游戏|\U0001F3AE|(\\b(GAME)\\b))).*$"
+KR: &KR "^(?=.*((?i)\U0001F1F0\U0001F1F7|韩国|韓|首尔|(\\b(KR|KOR|Korea)(\\d+)?\\b)))(?!.*((?i)回国|校园|游戏|\U0001F3AE|(\\b(GAME)\\b))).*$"
+SG: &SG "^(?=.*((?i)\U0001F1F8\U0001F1EC|新加坡|狮|(\\b(SG|Singapore)\\b)))(?!.*((?i)回国|校园|游戏|\U0001F3AE|(\\b(GAME)\\b))).*$"
+US: &US "^(?=.*((?i)\U0001F1FA\U0001F1F8|美国|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|(\\b(US|United States)\\b)))(?!.*((?i)回国|校园|游戏|\U0001F3AE|(\\b(GAME)\\b))).*$"
 All: &All '^(?=.*(.))(?!.*((?i)群|邀请|返利|循环|官网|客服|网站|网址|获取|订阅|流量|到期|机场|下次|版本|官址|备用|过期|已用|联系|邮箱|工单|贩卖|通知|倒卖|防止|国内|地址|频道|无法|说明|使用|提示|特别|访问|支持|教程|关注|更新|作者|加入|(\b(USE|USED|TOTAL|Traffic|Expire|EMAIL|Panel|Channel|Author)\b|(\d{4}-\d{2}-\d{2}|\d+G)))).*$'
-
 # 通用 select 组模板
 Select: &Select
   type: select
@@ -287,21 +186,19 @@ Select: &Select
     - America
     - AllServer
     - DIRECT
-
-UrlTest: &UrlTest                                         # 自动选低延迟节点
-  type: url-test
-  interval: 300                                           # 健康检查间隔
-  tolerance: 600                                          # 节点切换容差, 单位 ms
-  lazy: true                                              # 懒惰状态, 默认为true,未选择到当前策略组时, 不进行测试
+UrlTest: &UrlTest
+  type: url-test # 自动选低延迟节点
+  interval: 300 # 健康检查间隔
+  tolerance: 600 # 节点切换容差, 单位 ms
+  lazy: true # 懒惰状态, 默认为true,未选择到当前策略组时, 不进行测试
   url: 'https://www.gstatic.com/generate_204'
-  disable-udp: false                                      # 禁用该策略组的UDP
-  timeout: 2000                                           # 健康检查超时, 单位ms
-  max-failed-times: 3                                     # 失败次数, 超过则执行一次强制健康检查, 默认 5
-  hidden: true                                            # 隐藏显示 在 api 返回hidden状态, 以隐藏该策略组展示 (需要使用 api 的前端适配)
-  include-all-providers: true                             # 所有节点
-
-FallBack: &FallBack                                       # 当前节点失败后按顺序切到下一个可用节点
-  type: fallback
+  disable-udp: false # 禁用该策略组的UDP
+  timeout: 2000 # 健康检查超时, 单位ms
+  max-failed-times: 3 # 失败次数, 超过则执行一次强制健康检查, 默认 5
+  hidden: true # 隐藏显示 在 api 返回hidden状态, 以隐藏该策略组展示 (需要使用 api 的前端适配)
+  include-all-providers: true # 仅纳入 provider 节点
+FallBack: &FallBack
+  type: fallback # 当前节点失败后按顺序切到下一个可用节点
   interval: 300
   lazy: true
   url: 'https://www.gstatic.com/generate_204'
@@ -310,24 +207,21 @@ FallBack: &FallBack                                       # 当前节点失败�
   max-failed-times: 3
   hidden: true
   include-all-providers: true
-
 # 锚点 end
 
 # 代理组
 proxy-groups:
-
-# 主入口
+  # 主入口
   - {name: Final, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png', <<: *Select, proxies: [Proxy, AllServer, DIRECT]}
   - {name: PT, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png', <<: *Select, proxies: [HongKong, TaiWan, Japan, Korea, Singapore, America, Proxy, DIRECT]}
-# 基础策略
+  # 基础策略
   - {name: Proxy, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Rocket.png', <<: *Select, proxies: [HongKong, TaiWan, Japan, Korea, Singapore, America, AllServer, DIRECT]}
   - {name: Block, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AdBlack.png', <<: *Select, proxies: [REJECT, DIRECT]}
   - {name: banProgram, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AdBlack.png', <<: *Select, proxies: [REJECT, DIRECT]}
   - {name: China, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/China_Map.png', <<: *Select, proxies: [DIRECT, Final]}
   - {name: Global, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Global.png', <<: *Select, proxies: [Final, DIRECT]}
-
-# 业务分流组: 保留独立选择, 便于日常按服务切节点。
-  - {name: AI, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png', type: select, proxies: [AI-专线, Seoul-AI, Proxy, HongKong, TaiWan, Japan, Korea, Singapore, America, AllServer, DIRECT]}
+  # 业务分流组: 保留独立选择, 便于日常按服务切节点。
+  - {name: AI, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png', <<: *Select}
   - {name: Speedtest, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Speedtest.png', <<: *Select}
   - {name: GitHub, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/GitHub.png', <<: *Select}
   - {name: YouTube, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/YouTube.png', <<: *Select}
@@ -341,46 +235,36 @@ proxy-groups:
   - {name: X, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/X.png', <<: *Select}
   - {name: Steam, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Steam.png', <<: *Select}
   - {name: Games, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Game.png', <<: *Select}
-
-# 服务分流组
+  # 服务分流组
   - {name: Apple, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Apple_1.png', <<: *Select, proxies: [DIRECT, Proxy, HongKong, TaiWan, Japan, Korea, Singapore, America, AllServer]}
   - {name: Google, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Google_Search.png', <<: *Select}
   - {name: Microsoft, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Windows_11.png', <<: *Select, proxies: [DIRECT, Proxy, HongKong, TaiWan, Japan, Korea, Singapore, America, AllServer]}
-
-# 地区节点组
+  # 地区节点组
   - {name: HongKong, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Hong_Kong.png', type: select, proxies: [HK-Auto, HK-FallBack], include-all-providers: true, filter: *HK}
   - {name: TaiWan, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/China.png', type: select, proxies: [TW-Auto, TW-FallBack], include-all-providers: true, filter: *TW}
   - {name: Japan, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Japan.png', type: select, proxies: [JP-Auto, JP-FallBack], include-all-providers: true, filter: *JP}
   - {name: Korea, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Korea.png', type: select, proxies: [KR-Auto, KR-FallBack], include-all-providers: true, filter: *KR}
   - {name: Singapore, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Singapore.png', type: select, proxies: [SG-Auto, SG-FallBack], include-all-providers: true, filter: *SG}
   - {name: America, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/United_States.png', type: select, proxies: [US-Auto, US-FallBack], include-all-providers: true, filter: *US}
-
-# 全部节点
+  # 全部节点
   - {name: AllServer, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Airport.png', type: select, proxies: [All-Auto], <<: *use-all-proxy-providers, filter: *All}
-
-# AI 专线: 自建节点不可用时回退现有机场策略。
-  - {name: AI-专线, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png', type: fallback, proxies: [Seoul-AI, Proxy], url: 'https://www.gstatic.com/generate_204', interval: 120, timeout: 3000, lazy: false, max-failed-times: 2}
-
-# 自动测速组
+  # 自动测速组
   - {name: HK-Auto, <<: *UrlTest, filter: *HK, exclude-filter: '(免费|下载|直连)'}
   - {name: TW-Auto, <<: *UrlTest, filter: *TW, exclude-filter: '(免费|下载|直连)'}
   - {name: JP-Auto, <<: *UrlTest, filter: *JP, exclude-filter: '(免费|下载|直连)'}
   - {name: KR-Auto, <<: *UrlTest, filter: *KR, exclude-filter: '(免费|下载|直连)'}
   - {name: SG-Auto, <<: *UrlTest, filter: *SG, exclude-filter: '(免费|下载|直连)'}
   - {name: US-Auto, <<: *UrlTest, filter: *US, exclude-filter: '(免费|下载|直连)'}
-
-# 故障转移组
+  # 故障转移组
   - {name: HK-FallBack, <<: *FallBack, filter: *HK, exclude-filter: '(免费|下载|直连)'}
   - {name: TW-FallBack, <<: *FallBack, filter: *TW, exclude-filter: '(免费|下载|直连)'}
   - {name: JP-FallBack, <<: *FallBack, filter: *JP, exclude-filter: '(免费|下载|直连)'}
   - {name: KR-FallBack, <<: *FallBack, filter: *KR, exclude-filter: '(免费|下载|直连)'}
   - {name: SG-FallBack, <<: *FallBack, filter: *SG, exclude-filter: '(免费|下载|直连)'}
   - {name: US-FallBack, <<: *FallBack, filter: *US, exclude-filter: '(免费|下载|直连)'}
-
-# 全部节点自动测速
+  # 全部节点自动测速
   - {name: All-Auto, <<: *UrlTest, filter: *All, exclude-filter: '(免费|下载|直连)'}
-
-# include-all-providers: 引入 provider 内节点
+# include-all-providers: 仅引入 provider 节点
 # filter / exclude-filter: 按节点名筛选或排除
 
 # 规则匹配
@@ -402,34 +286,26 @@ rules:
   - DOMAIN-SUFFIX,qq.com,DIRECT
   - DOMAIN-SUFFIX,tenpay.com,DIRECT
   - DOMAIN-SUFFIX,gtimg.com,DIRECT
-  - DOMAIN-SUFFIX,iadsdk.apple.com,Apple                  # App Store 加载
-  - RULE-SET,tailscale_domain,DIRECT                      # tailscale 必须直连, 否则打洞失败
-  - RULE-SET,bt_tracker_domain,DIRECT                     # BT/PT tracker 常用域名
-
-  # 指定 PT/下载相关源地址直连
-  - SRC-IP-CIDR,10.10.2.81/32,DIRECT                      # BT/PT
-  - SRC-IP-CIDR,10.10.2.82/32,DIRECT                      # BT/PT
-  - SRC-IP-CIDR,10.10.2.83/32,DIRECT                      # BT/PT
-  - SRC-IP-CIDR,10.10.2.84/32,DIRECT                      # BT/PT
-
+  - DOMAIN-SUFFIX,iadsdk.apple.com,Apple # App Store 加载
+  - RULE-SET,tailscale_domain,DIRECT # tailscale 必须直连, 否则打洞失败
+  - RULE-SET,bt_tracker_domain,DIRECT # BT/PT tracker 常用域名
   # ✅ PT 站点 / 种子 / Tracker
-  - DOMAIN,kp.m-team.cc,PT                                # 馒头站点网页可手动选代理
-  - DOMAIN,az2.halomt.com,DIRECT                          # 下载种子域名直连
+  - DOMAIN,kp.m-team.cc,PT # 馒头站点网页可手动选代理
+  - DOMAIN,az2.halomt.com,DIRECT # 下载种子域名直连
   - DOMAIN,az1.halomt.com,DIRECT
   - DOMAIN,cx1.manfuz.co,DIRECT
   - DOMAIN,cx2.manfuz.co,DIRECT
   - DOMAIN,fr1.halomt.com,DIRECT
   - DOMAIN,bt1.manfuz.co,DIRECT
   - DOMAIN,hs1.holysalt.org,DIRECT
-  - DOMAIN,tra99.manfuz.co,DIRECT                         # tracker 做种直连
+  - DOMAIN,tra99.manfuz.co,DIRECT # tracker 做种直连
   - DOMAIN,tra1.m-team.cc,DIRECT
   - DOMAIN,tracker.m-team.io,DIRECT
   - DOMAIN,tra1.m-team.io,DIRECT
   - DOMAIN,tracker.m-team.cc,DIRECT
-  - DOMAIN,pttime.org,DIRECT                              # PT 时间
-  - DOMAIN,cspt.top,DIRECT                                # PT 财神
-  - DOMAIN,ptzone.xyz,DIRECT                              # PTzone
-
+  - DOMAIN,pttime.org,DIRECT # PT 时间
+  - DOMAIN,cspt.top,DIRECT # PT 财神
+  - DOMAIN,ptzone.xyz,DIRECT # PTzone
   # ✅ 影视刮削 / 特殊服务
   - DOMAIN,api.themoviedb.org,Proxy
   - DOMAIN,api.tmdb.org,Proxy
@@ -438,7 +314,6 @@ rules:
   - RULE-SET,tmdb_domain,Proxy
   - DOMAIN,aepxlg.adobe.com,Proxy
   - GEOSITE,google-cn,Google
-
   # ✅ 私有网络 / 广告 / 拦截
   - RULE-SET,private_domain,China
   - RULE-SET,private-ip,China,no-resolve
@@ -446,14 +321,11 @@ rules:
   - RULE-SET,adrules_domain,Block
   - RULE-SET,AD_ip,Block,no-resolve
   - RULE-SET,banProgramAD_domain,banProgram
-
   # ✅ 国内社交
   - RULE-SET,wechat_domain,China
-
   # ✅ 测速 / 测试
   - RULE-SET,speedtest_domain,Speedtest
   - RULE-SET,check_class,Speedtest
-
   # ✅ AI 相关服务
   - RULE-SET,chatgpt_domain,AI
   - RULE-SET,claude_domain,AI
@@ -462,7 +334,6 @@ rules:
   - RULE-SET,copilot_domain,AI
   - RULE-SET,gemini_domain,AI
   - RULE-SET,ai_domain,AI
-
   # ✅ 流媒体服务
   - RULE-SET,youtube_domain,YouTube
   - RULE-SET,tiktok_domain,TikTok
@@ -473,7 +344,6 @@ rules:
   - RULE-SET,bahamut_domain,Bahamut
   - RULE-SET,biliintl_domain,Streaming
   - RULE-SET,bilibili_domain,bilibili
-
   # ✅ 常用国际服务
   - RULE-SET,github_domain,GitHub
   - RULE-SET,telegram_domain,Telegram
@@ -485,7 +355,6 @@ rules:
   - RULE-SET,apple_domain,Apple
   - RULE-SET,onedrive_domain,Microsoft
   - RULE-SET,microsoft_domain,Microsoft
-
   # ✅ 游戏相关
   - RULE-SET,epic_domain,Games
   - RULE-SET,ea_domain,Games
@@ -495,11 +364,9 @@ rules:
   - RULE-SET,nintendo_domain,Games
   - RULE-SET,games_domain,Games
   - RULE-SET,steam_domain,Steam
-
   # ✅ 代理类/全局规则
   - RULE-SET,proxy_domain,Final
   - RULE-SET,geolocation-!cn,Final
-
   # ✅ IP 规则放在域名规则之后, 避免过早按 IP 命中导致域名分流失效。
   - RULE-SET,google_ip,Google,no-resolve
   - RULE-SET,netflix_ip,NETFLIX,no-resolve
@@ -507,7 +374,6 @@ rules:
   - RULE-SET,twitter_ip,X,no-resolve
   - RULE-SET,bilibili_ip,bilibili,no-resolve
   - RULE-SET,apple_ip,Apple,no-resolve
-
   # ✅ 兜底规则
   - RULE-SET,global_domain,Global
   - RULE-SET,gfw_domain,Final
@@ -515,7 +381,6 @@ rules:
   - RULE-SET,cn_ip,China
   - GEOIP,cn,DIRECT
   - MATCH,Final
-
 # 远程规则集
 # 优先使用 mrs 格式, 启动和匹配开销较低。
 rule-providers:
@@ -524,16 +389,13 @@ rule-providers:
   cn_domain: {<<: *domain, path: ./ruleset/cn_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs'}
   cn_ip: {<<: *ip, path: ./ruleset/cn_ip.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/cn.mrs'}
   private-ip: {<<: *ip, path: ./ruleset/private-ip.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/private.mrs'}
-
   # 🟢 BT/PT 下载
   bt_tracker_domain: {<<: *domain, path: ./ruleset/bt_tracker_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-public-tracker.mrs'}
-
   # 🌍 通用代理 / 全球规则
   proxy_domain: {<<: *domain, path: ./ruleset/proxy_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo-lite/geosite/proxy.mrs'}
   gfw_domain: {<<: *domain, path: ./ruleset/gfw_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/gfw.mrs'}
   geolocation-!cn: {<<: *domain, path: ./ruleset/geolocation-!cn.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/geolocation-!cn.mrs'}
   global_domain: {<<: *class, path: ./ruleset/global_domain.list, url: 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Global/Global.list'}
-
   # 🤖 AI 相关
   ai_domain: {<<: *domain, path: ./ruleset/ai_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-ai-!cn.mrs'}
   chatgpt_domain: {<<: *domain, path: ./ruleset/chatgpt_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/openai.mrs'}
@@ -542,7 +404,6 @@ rule-providers:
   claude_domain: {<<: *class, path: ./ruleset/claude_domain.list, url: 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Claude/Claude.list'}
   copilot_domain: {<<: *class, path: ./ruleset/copilot_domain.list, url: 'https://raw.githubusercontent.com/liandu2024/clash/main/list/Copilot.list'}
   meta_ai_domain: {<<: *class, path: ./ruleset/meta_ai_domain.list, url: 'https://raw.githubusercontent.com/liandu2024/clash/main/list/MetaAi.list'}
-
   # 🔗 常用网站 & 社交平台
   google_domain: {<<: *domain, path: ./ruleset/google_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/google.mrs'}
   google_ip: {<<: *ip, path: ./ruleset/google_ip.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/google.mrs'}
@@ -550,14 +411,12 @@ rule-providers:
   reddit_domain: {<<: *domain, path: ./ruleset/reddit_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/reddit.mrs'}
   twitter_domain: {<<: *domain, path: ./ruleset/twitter_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/x.mrs'}
   twitter_ip: {<<: *ip, path: ./ruleset/twitter_ip.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/twitter.mrs'}
-
   # 💬 聊天 & 通讯
   telegram_domain: {<<: *domain, path: ./ruleset/telegram_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/telegram.mrs'}
   telegram_ip: {<<: *ip, path: ./ruleset/telegram_ip.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/telegram.mrs'}
   whatsapp_domain: {<<: *domain, path: ./ruleset/whatsapp_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/whatsapp.mrs'}
   facebook_domain: {<<: *domain, path: ./ruleset/facebook_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/facebook.mrs'}
   wechat_domain: {<<: *class, path: ./ruleset/wechat_domain.list, url: 'https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/WeChat/WeChat.list'}
-
   # 🎬 视频 & 流媒体
   youtube_domain: {<<: *domain, path: ./ruleset/youtube_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/youtube.mrs'}
   netflix_domain: {<<: *domain, path: ./ruleset/netflix_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/netflix.mrs'}
@@ -572,14 +431,12 @@ rule-providers:
   bilibili_ip: {<<: *ip, path: ./ruleset/bilibili_ip.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo-lite/geoip/bilibili.mrs'}
   # 哔哩哔哩东南亚
   biliintl_domain: {<<: *domain, path: ./ruleset/biliintl_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/biliintl.mrs'}
-
   # 💻 科技公司 & 云服务
   microsoft_domain: {<<: *domain, path: ./ruleset/microsoft_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/microsoft.mrs'}
   onedrive_domain: {<<: *domain, path: ./ruleset/onedrive_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/onedrive.mrs'}
   apple_domain: {<<: *domain, path: ./ruleset/apple_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple-cn.mrs'}
   apple_ip: {<<: *ip, path: ./ruleset/apple_ip.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo-lite/geoip/apple.mrs'}
   tailscale_domain: {<<: *domain, path: ./ruleset/tailscale_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/tailscale.mrs'}
-
   # 🎮 游戏平台
   steam_domain: {<<: *domain, path: ./ruleset/steam_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/steam.mrs'}
   blizzard_domain: {<<: *domain, path: ./ruleset/blizzard_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/blizzard.mrs'}
@@ -589,15 +446,36 @@ rule-providers:
   playstation_domain: {<<: *domain, path: ./ruleset/playstation_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/playstation.mrs'}
   nintendo_domain: {<<: *domain, path: ./ruleset/nintendo_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/nintendo.mrs'}
   games_domain: {<<: *domain, path: ./ruleset/games_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-games.mrs'}
-
   # 🚫 广告屏蔽 & 其他
   anti-ad_domain: {<<: *domain, path: ./ruleset/anti-ad_domain.mrs, url: 'https://raw.githubusercontent.com/privacy-protection-tools/anti-ad.github.io/master/docs/mihomo.mrs'}
   adrules_domain: {<<: *domain, path: ./ruleset/adrules_domain.mrs, url: 'https://adrules.top/adrules-mihomo.mrs'}
-  AD_ip: { <<: *iplist, path: ./ruleset/AD_ip.list, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/ad.list'}
+  AD_ip: {<<: *iplist, path: ./ruleset/AD_ip.list, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/ad.list'}
   banProgramAD_domain: {<<: *class, path: ./ruleset/banProgramAD_domain.list, url: 'https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanProgramAD.list'}
-  speedtest_domain: { <<: *domain, path: ./ruleset/speedtest_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/ookla-speedtest.mrs'}
-  check_class: { <<: *class, path: ./ruleset/check_class.list, url: 'https://raw.githubusercontent.com/BSakura-Miku/clash/refs/heads/BSakura-Miku-patch-1/list/Check.list'}
-
+  speedtest_domain: {<<: *domain, path: ./ruleset/speedtest_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/ookla-speedtest.mrs'}
+  check_class: {<<: *class, path: ./ruleset/check_class.list, url: 'https://raw.githubusercontent.com/BSakura-Miku/clash/refs/heads/BSakura-Miku-patch-1/list/Check.list'}
+  fakeip-filter:
+    type: http
+    behavior: domain
+    format: mrs
+    path: ./rule_providers/fake-ip-filter.mrs
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/fakeip-filter.mrs"
 hosts:
-  pve.lan:
-    - 10.10.2.9
+  time.facebook.com: 17.253.84.125
+  time.android.com: 17.253.84.125
+tun: {enable: true, stack: mixed, device: tun0, auto-route: true, auto-detect-interface: true, dns-hijack: ["any:53", "tcp://any:53"]}
+external-controller: 0.0.0.0:7788 # 供热点内网面板访问; 勿暴露到 WAN
+secret: '<CHANGE_ME>' # 必须替换为长随机密钥
+external-ui: WebUI/zashboard
+external-ui-url: "https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip"
+allow-lan: true
+mixed-port: 7890
+keep-alive-interval: 15
+keep-alive-idle: 600
+geodata-mode: true
+find-process-mode: "off"
+ntp:
+  enable: true
+  write-to-system: true
+  server: time.apple.com
+  port: 123
+  interval: 30

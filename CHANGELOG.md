@@ -11,6 +11,13 @@
 
 # 📜 更新日志
 
+## 跨客户端规则同步 / F50 Pro (2026-08-17)
+- mihomo 网关模板同步 Loon 中可通用的手动直连规则。
+- 新增中兴 F50 Pro / UFI-TOOLS 脱敏模板。
+- F50 Pro 模板修复 provider `override` 浅合并导致通用 UDP/IPv4 设置失效的问题。
+- Mihomo 的 `Global` 默认顺序调整为 `Final` 优先，与 Loon 保持一致。
+- 公开模板未收录私有主机名、WireGuard 回家规则、订阅链接和面板密钥。
+
 ## Loon Ver.1.10 (2026-08-13)
 - 合并 Mac 与 iPhone 的本地手动直连规则。
 - 增加 `ug.link` 全部子域名及 `119.29.35.44/32` 的直连规则。
