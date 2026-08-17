@@ -142,12 +142,12 @@ dns:
     #   - 223.5.5.5
     # direct-nameserver-follow-policy: false                # 是否遵循 nameserver-policy, 默认为不遵守, 仅当 direct-nameserver 不为空时生效
     # nameserver-policy:                                    # 可按域名指定 DNS, 暂时不启用以保持链路简单
-    #   'GEOSITE:category-ads-all': rcode://success         # 匹配广告域名, 返回空结果 
+    #   'GEOSITE:category-ads-all': rcode://success         # 匹配广告域名, 返回空结果
     #   '+.baidu.com': '114.114.114.114'                    # 指定百度域名使用114DNS
     #   '+.arpa': '10.0.0.1'
     #   'RULE-SET:cn_domain':                               # 指定规则集使用DNS
-    #   - https://doh.pub/dns-query#Proxy                   # 使用DNS并走代理  
-    #   - https://dns.alidns.com/dns-query#Proxy&h3=true    # 使用DNS并走代理使用HTTP/3 使用#附加, 使用&连接不同的参数 除了指定代理/接口和 ecs, 其余项的值均为 bool (true/false) 
+    #   - https://doh.pub/dns-query#Proxy                   # 使用DNS并走代理
+    #   - https://dns.alidns.com/dns-query#Proxy&h3=true    # 使用DNS并走代理使用HTTP/3 使用#附加, 使用&连接不同的参数 除了指定代理/接口和 ecs, 其余项的值均为 bool (true/false)
   fake-ip-filter: ['rule-set:fakeip-filter']
 # fallback:                                             # 旧写法, 不使用
 
