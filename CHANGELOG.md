@@ -11,6 +11,10 @@
 
 # 📜 更新日志
 
+## mihomo gateway / Loon Ver.1.11 (2026-08-23)
+- mihomo 与 Mac/iPhone Loon 增加 `apple-cloudkit.com` 高优先级 Apple 规则，避免 CloudKit 因规则集未覆盖而落入全局代理。
+- 自动测速组切换容差由 `600ms` 调整为 `300ms`，保持稳定优先，同时避免明显变慢的节点长期不切换。
+
 ## 跨客户端规则同步 / F50 Pro (2026-08-17)
 - mihomo 网关模板同步 Loon 中可通用的手动直连规则。
 - 新增中兴 F50 Pro / UFI-TOOLS 脱敏模板。

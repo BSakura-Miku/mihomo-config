@@ -4,7 +4,7 @@
 # 作者: https://github.com/BSakura-Miku
 # 项目地址: https://github.com/BSakura-Miku/mihomo-config
 # 当前版本: CT202 gateway profile / public template
-# 最后更新: 2026-08-12
+# 最后更新: 2026-08-23
 # 隐私说明: 本模板已移除订阅链接、面板 secret、自建节点凭据等私密信息, 使用前请自行替换占位符。
 # 参考
 # https://wiki.metacubex.one/config/
@@ -291,7 +291,7 @@ Select: &Select
 UrlTest: &UrlTest                                         # 自动选低延迟节点
   type: url-test
   interval: 300                                           # 健康检查间隔
-  tolerance: 600                                          # 节点切换容差, 单位 ms
+  tolerance: 300                                          # 稳定优先；新节点需明显更快才切换
   lazy: true                                              # 懒惰状态, 默认为true,未选择到当前策略组时, 不进行测试
   url: 'https://www.gstatic.com/generate_204'
   disable-udp: false                                      # 禁用该策略组的UDP
@@ -403,6 +403,7 @@ rules:
   - DOMAIN-SUFFIX,tenpay.com,DIRECT
   - DOMAIN-SUFFIX,gtimg.com,DIRECT
   - DOMAIN-SUFFIX,iadsdk.apple.com,Apple                  # App Store 加载
+  - DOMAIN-SUFFIX,apple-cloudkit.com,Apple                # CloudKit 直连，避免落入 geolocation-!cn
   - RULE-SET,tailscale_domain,DIRECT                      # tailscale 必须直连, 否则打洞失败
   - RULE-SET,bt_tracker_domain,DIRECT                     # BT/PT tracker 常用域名
 
