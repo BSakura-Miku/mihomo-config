@@ -4,7 +4,7 @@
 
 当前主线是家庭网关架构：RouterOS 作为主路由，按 CNIP / 策略路由把需要代理的 IPv4 流量送到 mihomo 旁路网关，IPv6 默认由 RouterOS 直连，不进入代理链路。
 
-最后更新：2026-08-17
+最后更新：2026-08-23
 
 ## 文件
 
@@ -85,10 +85,11 @@ Loon 配置保留了日常使用策略组：
 - `Proxy`
 - `AI`
 - `AI-专线`（自建 REALITY 节点优先、机场策略回退）
-- `Speedtest`
+- `NetworkCheck`（测速、IP/DNS 泄漏及网络检测）
 - `GitHub`
 - `YouTube`
-- `NETFLIX`
+- `Netflix/HBO`
+- `Spotify/BiliIntl`
 - `Telegram`
 - `Apple`
 - `Google`

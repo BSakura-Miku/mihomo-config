@@ -14,6 +14,10 @@
 ## mihomo gateway / Loon Ver.1.11 (2026-08-23)
 - mihomo 与 Mac/iPhone Loon 增加 `apple-cloudkit.com` 高优先级 Apple 规则，避免 CloudKit 因规则集未覆盖而落入全局代理。
 - 自动测速组切换容差由 `600ms` 调整为 `300ms`，保持稳定优先，同时避免明显变慢的节点长期不切换。
+- 统一 Mihomo 与 Loon 策略名称：`Speedtest` 改为 `NetworkCheck`，`NETFLIX` 改为 `Netflix/HBO`，Spotify 与 BiliIntl 合并为 `Spotify/BiliIntl`；Loon 同步补充 HBO 规则。
+- 将 Steam 规则置于通用游戏规则之前，确保 `Steam` 独立策略能够命中。
+- 删除已被 `category-games` 覆盖的游戏平台子规则/provider，以及已被 TMDB 规则集覆盖的显式域名。
+- 删除不再使用的 `10.10.2.84` 源地址直连规则。
 
 ## 跨客户端规则同步 / F50 Pro (2026-08-17)
 - mihomo 网关模板同步 Loon 中可通用的手动直连规则。

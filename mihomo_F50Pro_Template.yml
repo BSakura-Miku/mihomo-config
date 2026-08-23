@@ -236,15 +236,15 @@ proxy-groups:
   - {name: Global, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Global.png', <<: *Select, proxies: [Final, DIRECT]}
   # 业务分流组: 保留独立选择, 便于日常按服务切节点。
   - {name: AI, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png', type: select, proxies: [AI-专线, Seoul-AI, Proxy, HongKong, TaiWan, Japan, Korea, Singapore, America, AllServer, DIRECT]}
-  - {name: Speedtest, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Speedtest.png', <<: *Select}
+  - {name: NetworkCheck, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Speedtest.png', <<: *Select}
   - {name: GitHub, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/GitHub.png', <<: *Select}
   - {name: YouTube, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/YouTube.png', <<: *Select}
-  - {name: NETFLIX, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Netflix.png', <<: *Select}
+  - {name: Netflix/HBO, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Netflix.png', <<: *Select}
   - {name: Disney, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Disney.png', <<: *Select}
   - {name: TikTok, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/TikTok.png', <<: *Select}
   - {name: Bahamut, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Bahamut.png', <<: *Select, proxies: [HongKong, TaiWan]}
   - {name: bilibili, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/bilibili_3.png', <<: *Select, proxies: [DIRECT, HongKong, TaiWan]}
-  - {name: Streaming, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Streaming.png', <<: *Select}
+  - {name: Spotify/BiliIntl, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Spotify.png', <<: *Select}
   - {name: Telegram, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Telegram_X.png', <<: *Select}
   - {name: X, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/X.png', <<: *Select}
   - {name: Steam, icon: 'https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Steam.png', <<: *Select}
@@ -323,9 +323,6 @@ rules:
   - DOMAIN,cspt.top,DIRECT # PT 财神
   - DOMAIN,ptzone.xyz,DIRECT # PTzone
   # ✅ 影视刮削 / 特殊服务
-  - DOMAIN,api.themoviedb.org,Proxy
-  - DOMAIN,api.tmdb.org,Proxy
-  - DOMAIN,www.themoviedb.org,Proxy
   - DOMAIN,api.thetvdb.com,Proxy
   - RULE-SET,tmdb_domain,Proxy
   - DOMAIN,aepxlg.adobe.com,Proxy
@@ -340,8 +337,8 @@ rules:
   # ✅ 国内社交
   - RULE-SET,wechat_domain,China
   # ✅ 测速 / 测试
-  - RULE-SET,speedtest_domain,Speedtest
-  - RULE-SET,check_class,Speedtest
+  - RULE-SET,speedtest_domain,NetworkCheck
+  - RULE-SET,check_class,NetworkCheck
   # ✅ AI 相关服务
   - RULE-SET,chatgpt_domain,AI
   - RULE-SET,claude_domain,AI
@@ -353,12 +350,12 @@ rules:
   # ✅ 流媒体服务
   - RULE-SET,youtube_domain,YouTube
   - RULE-SET,tiktok_domain,TikTok
-  - RULE-SET,netflix_domain,NETFLIX
+  - RULE-SET,netflix_domain,Netflix/HBO
   - RULE-SET,disney_domain,Disney
-  - RULE-SET,hbo_domain,NETFLIX
-  - RULE-SET,spotify_domain,Streaming
+  - RULE-SET,hbo_domain,Netflix/HBO
+  - RULE-SET,spotify_domain,Spotify/BiliIntl
   - RULE-SET,bahamut_domain,Bahamut
-  - RULE-SET,biliintl_domain,Streaming
+  - RULE-SET,biliintl_domain,Spotify/BiliIntl
   - RULE-SET,bilibili_domain,bilibili
   # ✅ 常用国际服务
   - RULE-SET,github_domain,GitHub
@@ -372,20 +369,14 @@ rules:
   - RULE-SET,onedrive_domain,Microsoft
   - RULE-SET,microsoft_domain,Microsoft
   # ✅ 游戏相关
-  - RULE-SET,epic_domain,Games
-  - RULE-SET,ea_domain,Games
-  - RULE-SET,blizzard_domain,Games
-  - RULE-SET,ubi_domain,Games
-  - RULE-SET,playstation_domain,Games
-  - RULE-SET,nintendo_domain,Games
-  - RULE-SET,games_domain,Games
   - RULE-SET,steam_domain,Steam
+  - RULE-SET,games_domain,Games
   # ✅ 代理类/全局规则
   - RULE-SET,proxy_domain,Final
   - RULE-SET,geolocation-!cn,Final
   # ✅ IP 规则放在域名规则之后, 避免过早按 IP 命中导致域名分流失效。
   - RULE-SET,google_ip,Google,no-resolve
-  - RULE-SET,netflix_ip,NETFLIX,no-resolve
+  - RULE-SET,netflix_ip,Netflix/HBO,no-resolve
   - RULE-SET,telegram_ip,Telegram,no-resolve
   - RULE-SET,twitter_ip,X,no-resolve
   - RULE-SET,bilibili_ip,bilibili,no-resolve
@@ -455,12 +446,6 @@ rule-providers:
   tailscale_domain: {<<: *domain, path: ./ruleset/tailscale_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/tailscale.mrs'}
   # 🎮 游戏平台
   steam_domain: {<<: *domain, path: ./ruleset/steam_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/steam.mrs'}
-  blizzard_domain: {<<: *domain, path: ./ruleset/blizzard_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/blizzard.mrs'}
-  epic_domain: {<<: *domain, path: ./ruleset/epic_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/epicgames.mrs'}
-  ea_domain: {<<: *domain, path: ./ruleset/ea_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/ea.mrs'}
-  ubi_domain: {<<: *domain, path: ./ruleset/ubi_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/ubisoft.mrs'}
-  playstation_domain: {<<: *domain, path: ./ruleset/playstation_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/playstation.mrs'}
-  nintendo_domain: {<<: *domain, path: ./ruleset/nintendo_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/nintendo.mrs'}
   games_domain: {<<: *domain, path: ./ruleset/games_domain.mrs, url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-games.mrs'}
   # 🚫 广告屏蔽 & 其他
   anti-ad_domain: {<<: *domain, path: ./ruleset/anti-ad_domain.mrs, url: 'https://raw.githubusercontent.com/privacy-protection-tools/anti-ad.github.io/master/docs/mihomo.mrs'}
