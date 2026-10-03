@@ -4,7 +4,7 @@
 
 当前主线是家庭网关架构：RouterOS 作为主路由，按 CNIP / 策略路由把需要代理的 IPv4 流量送到 mihomo 旁路网关，IPv6 默认由 RouterOS 直连，不进入代理链路。
 
-最后更新：2026-08-23
+最后更新：2026-10-03
 
 ## 文件
 
@@ -97,6 +97,15 @@ Loon 配置保留了日常使用策略组：
 - 地区节点组和自动测速组
 
 `[Proxy]` 和 `[Remote Proxy]` 内仅保留示例。导入前需要替换自己的订阅和手写节点。
+
+当前通用设置：
+
+- 普通 DNS 使用 `system`，DoH 保留公开通用地址。
+- 机场订阅示例统一启用 UDP 和 VMess AEAD、阻止 QUIC；自建 `Seoul-AI` 示例保留 `block-quic=false`。
+- `All` 筛选排除名为 `home` 的 WireGuard 节点，移除未使用的 `All-Auto` 和宽泛的 `.log.` 拦截规则。
+- anti-AD 保持停用；LAN / CN REGION 使用带 `.lsr` 后缀的规则地址。
+
+iPhone 与 Mac 各自的 WireGuard 地址、密钥和 MITM 证书需在设备上单独配置。启用 `home` 后，需要把它加入 `回家` 策略组。
 
 ## 使用步骤
 

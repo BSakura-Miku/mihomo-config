@@ -11,6 +11,15 @@
 
 # 📜 更新日志
 
+## Loon Ver.1.12 (2026-10-03)
+
+- 同步 iPhone / Mac 本地配置中的通用调整，公开仓库继续只发布一份脱敏模板。
+- `All` 筛选排除 WireGuard `home` 节点，保留自建 `Seoul-AI`；删除未使用的 `All-Auto` 自动测速组。
+- 删除宽泛的 `.log.` URL 拦截规则，避免误拦正常请求；anti-AD 保持停用。
+- 订阅示例统一阻止 QUIC，保持 UDP、VMess AEAD 启用和 TLS 证书验证；自建节点保留 QUIC 设置。
+- 修正 CN REGION 以及公开模板已有 LAN 规则地址的 `.lsr` 后缀。
+- README 补充 DNS、QUIC 与设备独立配置说明；真实订阅、节点参数、WireGuard 密钥、MITM 证书和家庭 SSID 不进入公开版本。
+
 ## mihomo gateway / Loon Ver.1.11 (2026-08-23)
 - mihomo 与 Mac/iPhone Loon 增加 `apple-cloudkit.com` 高优先级 Apple 规则，避免 CloudKit 因规则集未覆盖而落入全局代理。
 - 自动测速组切换容差由 `600ms` 调整为 `300ms`，保持稳定优先，同时避免明显变慢的节点长期不切换。
